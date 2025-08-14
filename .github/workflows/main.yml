@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   DOCKER_IMAGE_NAME: udenis123/origin-group
