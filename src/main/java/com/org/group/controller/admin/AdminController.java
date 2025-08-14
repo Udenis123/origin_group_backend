@@ -50,10 +50,6 @@ public class AdminController {
         this.orderedProjectServices = orderedProjectServices;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "Hello World";
-    }
 
     @PostMapping("/register/analyzer")
     private ResponseEntity<?> RegisterAnalyzer( @Valid @RequestBody AnalyzerDto analyzerDto){

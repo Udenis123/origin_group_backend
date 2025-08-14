@@ -97,6 +97,11 @@ public class AuthenticationController {
                 .build());
     }
 
+    @GetMapping("/test")
+    public String test() {
+        return "Hello World";
+    }
+
 
 
     @Operation(
