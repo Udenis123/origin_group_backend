@@ -7,6 +7,8 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
+RUN chmod +x mvnw
+
 # Dependencies will be fetched using host Maven cache
 RUN ./mvnw dependency:go-offline -B
 
