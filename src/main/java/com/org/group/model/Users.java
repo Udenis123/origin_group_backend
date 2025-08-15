@@ -33,7 +33,7 @@ public class Users implements UserDetails {
     private UUID id;
 
     @NotBlank(message = "specify your name")
-    private String name;
+    public String name;
 
     @NotBlank(message = "specify ID")
     @Column(unique = true, nullable = false)

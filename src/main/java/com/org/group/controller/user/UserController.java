@@ -266,7 +266,7 @@ public class UserController {
                     .userPhoto(rating.getUsers().getPhotoUrl())
                     .message(rating.getMessage())
                     .starNumber(rating.getStarNumber())
-                    .isApproved(rating.isAdminApprovedIt())
+                    .status(rating.getStatus())
                     .build();
             return ResponseEntity.ok(response);
         } else {

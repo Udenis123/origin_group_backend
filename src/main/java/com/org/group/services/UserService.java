@@ -3,14 +3,14 @@ package com.org.group.services;
 import com.org.group.dto.userAuth.ChangePasswordDto;
 import com.org.group.dto.userAuth.ProfileUpdateDto;
 import com.org.group.dto.userAuth.UserRattingDto;
-import com.org.group.model.UserRatting;
-import com.org.group.model.UserSubscription;
-import com.org.group.model.Users;
+import com.org.group.dto.userResponse.UserRatingResponse;
+import com.org.group.model.*;
 import com.org.group.model.analyzer.Analyzer;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.UserRepository;
 import com.org.group.repository.UserSubscriptionRepository;
 import com.org.group.services.emailAndJwt.EmailService;
+import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.mail.MessagingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -35,14 +35,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AnalyzerRepository analyzerRepository;
     private final UserRattingRepository userRattingRepository;
+    private final PlanFilterServices planFilterServices;
 
-    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository) {
+    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository, PlanFilterServices planFilterServices) {
         this.userRepository = userRepository;
         this.userSubscriptionRepository = userSubscriptionRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.analyzerRepository = analyzerRepository;
         this.userRattingRepository = userRattingRepository;
+        this.planFilterServices = planFilterServices;
     }
 
 
@@ -172,7 +174,7 @@ public class UserService {
             rating.setMessage(userRattingDto.getMessage());
             rating.setStarNumber(userRattingDto.getStars());
             rating.setRated(true);
-            rating.setAdminApprovedIt(false); // Reset approval status on update
+            rating.setStatus(RattingStatus.PENDING); // Reset approval status on update
             userRattingRepository.save(rating);
             return "Rating updated successfully";
         }
@@ -180,7 +182,7 @@ public class UserService {
         UserRatting userRatting = UserRatting.builder()
                 .users(users)
                 .message(userRattingDto.getMessage())
-                .isAdminApprovedIt(false)
+                .status(RattingStatus.PENDING)
                 .isRated(true)
                 .starNumber(userRattingDto.getStars())
                 .build();
@@ -189,14 +191,32 @@ public class UserService {
         return "Rating submitted successfully";
     }
     
-    public List<UserRatting> getAllRatings() {
-        return userRattingRepository.findAll();
+    public List<UserRatingResponse> getAllPendingRatings() {
+        List<UserRatting> ratings = userRattingRepository.findAll();
+        // Get the filtered plan for each user individually
+        return ratings.stream()
+                .filter(u -> u.getStatus() == RattingStatus.PENDING)
+                .map(rating -> {
+                    // Get the filtered plan for each user individually
+                    String filteredPlan = planFilterServices.getPlanFiltered(rating.getUsers());
+                    return UserRatingResponse.builder()
+                            .id(rating.getId())
+                            .userId(rating.getUsers().getId())
+                            .userName(rating.getUsers().getName())
+                            .userPhoto(rating.getUsers().getPhotoUrl())
+                            .message(rating.getMessage())
+                            .starNumber(rating.getStarNumber())
+                            .status(rating.getStatus())
+                            .subscription(filteredPlan)
+                            .build();
+                })
+                .toList();
     }
     
     public String approveRating(Long ratingId) {
         UserRatting rating = userRattingRepository.findById(ratingId)
                 .orElseThrow(() -> new RuntimeException("Rating not found"));
-        rating.setAdminApprovedIt(true);
+        rating.setStatus(RattingStatus.APPROVED);
         userRattingRepository.save(rating);
         return "Rating approved successfully";
     }
@@ -204,13 +224,13 @@ public class UserService {
     public String disapproveRating(Long ratingId) {
         UserRatting rating = userRattingRepository.findById(ratingId)
                 .orElseThrow(() -> new RuntimeException("Rating not found"));
-        rating.setAdminApprovedIt(false);
+        rating.setStatus(RattingStatus.REJECTED);
         userRattingRepository.save(rating);
         return "Rating disapproved successfully";
     }
     
     public List<UserRatting> getApprovedRatings() {
-        return userRattingRepository.findByIsAdminApprovedItTrue();
+        return userRattingRepository.findByStatus(RattingStatus.APPROVED);
     }
 
     public boolean hasUserRatedSystem(UUID userId) {

@@ -142,18 +142,8 @@ public class AdminController {
     )
     @GetMapping("/ratings")
     public ResponseEntity<List<UserRatingResponse>> getAllRatings() {
-        List<UserRatting> ratings = userService.getAllRatings();
-        List<UserRatingResponse> response = ratings.stream()
-                .map(rating -> UserRatingResponse.builder()
-                        .id(rating.getId())
-                        .userId(rating.getUsers().getId())
-                        .userName(rating.getUsers().getName())
-                        .userPhoto(rating.getUsers().getPhotoUrl())
-                        .message(rating.getMessage())
-                        .starNumber(rating.getStarNumber())
-                        .isApproved(rating.isAdminApprovedIt())
-                        .build())
-                .toList();
+        List<UserRatingResponse> response = userService.getAllPendingRatings();
+
         return ResponseEntity.ok(response);
     }
     

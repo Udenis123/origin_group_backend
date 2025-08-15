@@ -20,7 +20,7 @@ public class UserRatting {
     private String message;
     private int starNumber;
     private boolean isRated;
-    private boolean isAdminApprovedIt;
+    private RattingStatus status;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users users;
@@ -29,3 +29,4 @@ public class UserRatting {
         // Default constructor for JPA
     }
 }
+

@@ -1,5 +1,6 @@
 package com.org.group.dto.userResponse;
 
+import com.org.group.model.RattingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,5 +19,6 @@ public class UserRatingResponse {
     private String userPhoto;
     private String message;
     private int starNumber;
-    private boolean isApproved;
+    private RattingStatus status;
+    private String subscription; // Changed to String to store filtered plan name
 } 
