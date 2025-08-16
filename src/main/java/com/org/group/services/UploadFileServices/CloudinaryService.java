@@ -22,7 +22,7 @@ public class CloudinaryService {
 
     public void deleteFile(String imageUrl) {
         try {
-            if (imageUrl != null && !imageUrl.isEmpty()) {
+            if (imageUrl != null   && !imageUrl.isEmpty()) {
                 String publicId = extractPublicId(imageUrl);
                 cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
             }

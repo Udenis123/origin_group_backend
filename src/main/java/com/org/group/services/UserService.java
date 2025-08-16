@@ -9,6 +9,7 @@ import com.org.group.model.analyzer.Analyzer;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.UserRepository;
 import com.org.group.repository.UserSubscriptionRepository;
+import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.emailAndJwt.EmailService;
 import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.mail.MessagingException;
@@ -21,10 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.org.group.model.UserRatting;
 import com.org.group.repository.UserRattingRepository;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import com.org.group.subscription.SubscriptionStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @EnableScheduling
@@ -36,8 +39,9 @@ public class UserService {
     private final AnalyzerRepository analyzerRepository;
     private final UserRattingRepository userRattingRepository;
     private final PlanFilterServices planFilterServices;
+    private final CloudinaryService cloudinaryService;
 
-    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository, PlanFilterServices planFilterServices) {
+    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository, PlanFilterServices planFilterServices, CloudinaryService cloudinaryService) {
         this.userRepository = userRepository;
         this.userSubscriptionRepository = userSubscriptionRepository;
         this.emailService = emailService;
@@ -45,6 +49,7 @@ public class UserService {
         this.analyzerRepository = analyzerRepository;
         this.userRattingRepository = userRattingRepository;
         this.planFilterServices = planFilterServices;
+        this.cloudinaryService = cloudinaryService;
     }
 
 
@@ -66,21 +71,24 @@ public class UserService {
         return users;
     }
 
-    public void updateUserPhoto(UUID userId, String photoUrl) {
+    public String  updateUserPhoto(UUID userId, MultipartFile file) throws IOException {
         Optional<Users> userOpt = userRepository.findById(userId);
+        // Store the file and get the URL
+        String fileUrl = cloudinaryService.uploadFile(file,userOpt.get().getPhotoUrl());
+
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
-            user.setPhotoUrl(photoUrl);
+            user.setPhotoUrl(fileUrl);
             userRepository.save(user);
-            return;
+            return"Photo uploaded successfully";
         }
 
         Optional<Analyzer> analyzerOpt = analyzerRepository.findById(userId);
         if (analyzerOpt.isPresent()) {
             Analyzer analyzer = analyzerOpt.get();
-            analyzer.setProfileUrl(photoUrl); // Adjust field name accordingly
+            analyzer.setProfileUrl(fileUrl); // Adjust field name accordingly
             analyzerRepository.save(analyzer);
-            return;
+            return "Photo uploaded successfully";
         }
 
         throw new RuntimeException("User not found");

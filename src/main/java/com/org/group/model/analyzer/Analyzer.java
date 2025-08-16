@@ -23,8 +23,8 @@ import java.util.UUID;
 @Data
 public class Analyzer implements UserDetails {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
     @Column(nullable = false)
     private String name;

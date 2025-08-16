@@ -149,16 +149,12 @@ public class UserController {
             @RequestParam("userId") UUID userId,
             @RequestParam("file") MultipartFile file) {
         try {
-            // Store the file and get the URL
-            String fileUrl = cloudinaryService.uploadFile(file,"profile");
-            
             // Update user's photo URL
-            userService.updateUserPhoto(userId, fileUrl);
-            
-            return ResponseEntity.ok("Photo uploaded successfully: " + fileUrl);
+            return ResponseEntity.ok(userService.updateUserPhoto(userId,file));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (IOException e) {
+
+    } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
