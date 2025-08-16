@@ -95,6 +95,11 @@ public class AuthenticationController {
                 .expiresIn(jwtService.getExpirationTime())
                 .build());
     }
+    @GetMapping("/test")
+    public String Hello(){
+        return "Hello World";
+    }
+
 
     @Scheduled(fixedRate = 40000) // Run every 30 seconds (30000 milliseconds)
     public void test() {
