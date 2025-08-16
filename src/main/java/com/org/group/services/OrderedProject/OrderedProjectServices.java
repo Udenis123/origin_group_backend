@@ -30,7 +30,7 @@ public class OrderedProjectServices {
     private final CloudinaryService cloudinaryService;
 
     public OrderedProjectResponse createOrderedProject(UUID userId,OrderedProjectDto dto) throws IOException {
-        OrderedProject project = new OrderedProject();
+        OrderedProject project = new OrderedProject(); 
         // Map fields from dto to entity
         project.setClientName(dto.getClientName());
         project.setCompanyName(dto.getCompanyName());
