@@ -73,18 +73,18 @@ public class UserService {
 
     public String  updateUserPhoto(UUID userId, MultipartFile file) throws IOException {
         Optional<Users> userOpt = userRepository.findById(userId);
-        String fileUrl = cloudinaryService.uploadFile(file,userOpt.get().getPhotoUrl());
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
+            String fileUrl = cloudinaryService.uploadFile(file, user.getPhotoUrl());
             user.setPhotoUrl(fileUrl);
             userRepository.save(user);
-            return"Photo uploaded successfully";
+            return "Photo uploaded successfully";
         }
 
         Optional<Analyzer> analyzerOpt = analyzerRepository.findById(userId);
-        String photo = cloudinaryService.uploadFile(file,analyzerOpt.get().getProfileUrl());
         if (analyzerOpt.isPresent()) {
             Analyzer analyzer = analyzerOpt.get();
+            String photo = cloudinaryService.uploadFile(file, analyzer.getProfileUrl());
             analyzer.setProfileUrl(photo); // Adjust field name accordingly
             analyzerRepository.save(analyzer);
             return "Photo uploaded successfully";
