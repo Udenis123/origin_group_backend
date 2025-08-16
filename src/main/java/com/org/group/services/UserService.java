@@ -302,6 +302,7 @@ public class UserService {
         return String.valueOf(code);
     }
 
+
     @Scheduled(cron = "0 0 0 * * *")// Every midnight minutes
     @Transactional
     public void checkAndExpireSubscriptions() {

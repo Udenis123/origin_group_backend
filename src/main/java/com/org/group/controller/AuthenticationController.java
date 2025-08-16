@@ -1,8 +1,6 @@
 package com.org.group.controller;
 
-import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.userAuth.LoginUserDto;
-import com.org.group.model.analyzer.Analyzer;
 import com.org.group.responses.RegisterResponse;
 import com.org.group.dto.userAuth.RegisterUserDto;
 import com.org.group.dto.userAuth.ResetPasswordDto;
@@ -12,11 +10,12 @@ import com.org.group.responses.project.HomeProjectResponse;
 import com.org.group.services.Admin.AdminServices;
 import com.org.group.services.AuthenticationServices;
 import com.org.group.services.LaunchProject.LaunchProjectServices;
-import com.org.group.services.UploadFileServices.FileStorageService;
+
 import com.org.group.services.emailAndJwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -97,9 +96,9 @@ public class AuthenticationController {
                 .build());
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "Hello World";
+    @Scheduled(fixedRate = 40000) // Run every 30 seconds (30000 milliseconds)
+    public void test() {
+        System.out.println("Scheduled task running: Hello World - " + java.time.LocalDateTime.now());
     }
 
 
