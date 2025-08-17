@@ -309,4 +309,13 @@ public class AdminServices {
 
         return ResponseEntity.ok(pendingProjects);
     }
+
+    public List<Analyzer> getAllAnalyzers() {
+        return analyzerRepository.findAll();
+    }
+
+    public Analyzer getAnalyzerById(UUID analyzerId) {
+        return analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+    }
 }

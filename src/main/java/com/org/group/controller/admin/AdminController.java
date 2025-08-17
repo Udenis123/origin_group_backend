@@ -6,10 +6,7 @@ import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.dto.userResponse.UserRatingResponse;
-import com.org.group.model.Users;
 import com.org.group.model.analyzer.Analyzer;
-import com.org.group.model.UserRatting;
-import com.org.group.responses.LoginResponse;
 import com.org.group.responses.LoginResponseAn;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
@@ -27,7 +24,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -109,6 +105,7 @@ public class AdminController {
                 .expiresIn(jwtService.getExpirationTime())
                 .build());
     }
+    
 
 
     @GetMapping("/all/launch/project")
@@ -182,6 +179,26 @@ public class AdminController {
     @PostMapping("/reject/ordered_project")
     public ResponseEntity<?> approveOrderedProject (@RequestBody ProjectDeclineDto input) {
         return ResponseEntity.ok(orderedProjectServices.rejectOrderedProject(input.getProjectId(),input.getReason()));
+    }
+
+    @Operation(
+            summary = "Get all analyzers",
+            description = "Fetch all analyzer details for admin review"
+    )
+    @GetMapping("/analyzers")
+    public ResponseEntity<List<Analyzer>> getAllAnalyzers() {
+        List<Analyzer> analyzers = adminServices.getAllAnalyzers();
+        return ResponseEntity.ok(analyzers);
+    }
+
+    @Operation(
+            summary = "Get analyzer by ID",
+            description = "Fetch specific analyzer details by their ID"
+    )
+    @GetMapping("/analyzer/{analyzerId}")
+    public ResponseEntity<Analyzer> getAnalyzerById(@PathVariable UUID analyzerId) {
+        Analyzer analyzer = adminServices.getAnalyzerById(analyzerId);
+        return ResponseEntity.ok(analyzer);
     }
 
 }
