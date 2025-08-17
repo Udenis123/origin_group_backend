@@ -3,19 +3,15 @@ package com.org.group.services.Admin;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
-import com.org.group.dto.admin.UpdateAnalyzerDto;
-import com.org.group.dto.admin.UserInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
 import com.org.group.model.project.LaunchProject;
-import com.org.group.model.Users;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.analytics.AnalyticProjectRepository;
 import com.org.group.repository.project.LaunchProjectRepository;
-import com.org.group.repository.UserRepository;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
@@ -41,7 +37,6 @@ public class AdminServices {
     private final PasswordEncoder passwordEncoder;
     private final AnalyticProjectRepository analyticsRepository;
     private final LaunchProjectRepository launchProjectRepository;
-    private final UserRepository userRepository;
 
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
@@ -61,16 +56,14 @@ public class AdminServices {
         analyzerRepository.save(analyzer);
     }
     public String enableOrDisableAnalyzer(UUID analyzerId) {
-        Analyzer analyzer = analyzerRepository.findById(analyzerId).orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-        if (analyzer.isEnabled()) {
-            analyzer.setEnabled(false);
-            analyzerRepository.save(analyzer);
-            return "Analyzer disabled successfully";
-        } else {
-            analyzer.setEnabled(true);
-            analyzerRepository.save(analyzer);
-            return "Analyzer enabled successfully";
-        }
+          Analyzer analyzer = analyzerRepository.findById(analyzerId).orElseThrow(()-> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+          if(analyzer.isEnabled()){
+              analyzer.setEnabled(false);
+          }else {
+              analyzer.setEnabled(true);
+          }
+          analyzerRepository.save(analyzer);
+        return "Action Successful" ;
     }
 
 
@@ -338,77 +331,5 @@ public class AdminServices {
     public Analyzer getAnalyzerById(UUID analyzerId) {
         return analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-    }
-
-    public String updateAnalyzer(UUID analyzerId, UpdateAnalyzerDto updateAnalyzerDto) {
-        Analyzer analyzer = analyzerRepository.findById(analyzerId)
-                .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-
-        // Check if email is being changed and if it's already taken by another analyzer
-        if (!analyzer.getEmail().equals(updateAnalyzerDto.getEmail())) {
-            Optional<Analyzer> existingAnalyzer = analyzerRepository.findByEmail(updateAnalyzerDto.getEmail());
-            if (existingAnalyzer.isPresent() && !existingAnalyzer.get().getId().equals(analyzerId)) {
-                throw new RuntimeException("Email is already taken by another analyzer");
-            }
-        }
-
-        // Update analyzer fields
-        analyzer.setName(updateAnalyzerDto.getName());
-        analyzer.setEmail(updateAnalyzerDto.getEmail());
-        analyzer.setPhone(updateAnalyzerDto.getPhone());
-        analyzer.setExpertise(updateAnalyzerDto.getExpertise());
-        analyzer.setNationality(updateAnalyzerDto.getNationality());
-        analyzer.setGender(updateAnalyzerDto.getGender());
-        analyzer.setNationalId(updateAnalyzerDto.getNationalId());
-
-        // Update password if provided
-        if (updateAnalyzerDto.getPassword() != null && !updateAnalyzerDto.getPassword().trim().isEmpty()) {
-            analyzer.setPassword(passwordEncoder.encode(updateAnalyzerDto.getPassword()));
-        }
-
-        // Update enabled status if provided
-        if (updateAnalyzerDto.getEnabled() != null) {
-            analyzer.setEnabled(updateAnalyzerDto.getEnabled());
-        }
-
-        analyzerRepository.save(analyzer);
-        return "Analyzer updated successfully";
-    }
-
-    public List<UserInfoDto> getAllUsersInfo() {
-        return userRepository.findAll().stream()
-                .map(user -> UserInfoDto.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .phone(user.getPhone())
-                        .nationalId(user.getNationalId())
-                        .gender(user.getGender())
-                        .nationality(user.getNationality())
-                        .professional(user.getProfessional())
-                        .photoUrl(user.getPhotoUrl())
-                        .enabled(user.isEnabled())
-                        .subscribed(user.getSubscribed())
-                        .isActive(user.isActive())
-                        .build())
-                .toList();
-    }
-
-    public Users getUserById(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
-    }
-
-    public String DisableOrEnableUser(UUID userId) {
-        Users user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
-        if (user.isActive()) {
-            user.setActive(false);
-            userRepository.save(user);
-            return "User disabled successfully";
-        } else {
-            user.setActive(true);
-            userRepository.save(user);
-            return "User enabled successfully";
-        }
     }
 }
