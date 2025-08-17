@@ -313,6 +313,7 @@ public class AdminServices {
 
     public List<AnalyzerInfoDto> getAllAnalyzersInfo() {
         return analyzerRepository.findAll().stream()
+                .filter(analyzer -> analyzer.equals(analyzer.getRoles().equals(Role.ADMIN)))
                 .map(analyzer -> AnalyzerInfoDto.builder()
                         .id(analyzer.getId())
                         .name(analyzer.getName())
