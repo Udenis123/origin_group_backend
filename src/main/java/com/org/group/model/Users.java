@@ -59,6 +59,7 @@ public class Users implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @Column(name = "user_active", nullable = false)
     private boolean isActive = true;
 
     private String password;

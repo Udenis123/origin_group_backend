@@ -3,6 +3,7 @@ package com.org.group.services.Admin;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.admin.UserInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
@@ -60,14 +61,16 @@ public class AdminServices {
         analyzerRepository.save(analyzer);
     }
     public String enableOrDisableAnalyzer(UUID analyzerId) {
-          Analyzer analyzer = analyzerRepository.findById(analyzerId).orElseThrow(()-> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-          if(analyzer.isEnabled()){
-              analyzer.setEnabled(false);
-          }else {
-              analyzer.setEnabled(true);
-          }
-          analyzerRepository.save(analyzer);
-        return "Action Successful" ;
+        Analyzer analyzer = analyzerRepository.findById(analyzerId).orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+        if (analyzer.isEnabled()) {
+            analyzer.setEnabled(false);
+            analyzerRepository.save(analyzer);
+            return "Analyzer disabled successfully";
+        } else {
+            analyzer.setEnabled(true);
+            analyzerRepository.save(analyzer);
+            return "Analyzer enabled successfully";
+        }
     }
 
 
@@ -337,6 +340,41 @@ public class AdminServices {
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
     }
 
+    public String updateAnalyzer(UUID analyzerId, UpdateAnalyzerDto updateAnalyzerDto) {
+        Analyzer analyzer = analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+
+        // Check if email is being changed and if it's already taken by another analyzer
+        if (!analyzer.getEmail().equals(updateAnalyzerDto.getEmail())) {
+            Optional<Analyzer> existingAnalyzer = analyzerRepository.findByEmail(updateAnalyzerDto.getEmail());
+            if (existingAnalyzer.isPresent() && !existingAnalyzer.get().getId().equals(analyzerId)) {
+                throw new RuntimeException("Email is already taken by another analyzer");
+            }
+        }
+
+        // Update analyzer fields
+        analyzer.setName(updateAnalyzerDto.getName());
+        analyzer.setEmail(updateAnalyzerDto.getEmail());
+        analyzer.setPhone(updateAnalyzerDto.getPhone());
+        analyzer.setExpertise(updateAnalyzerDto.getExpertise());
+        analyzer.setNationality(updateAnalyzerDto.getNationality());
+        analyzer.setGender(updateAnalyzerDto.getGender());
+        analyzer.setNationalId(updateAnalyzerDto.getNationalId());
+
+        // Update password if provided
+        if (updateAnalyzerDto.getPassword() != null && !updateAnalyzerDto.getPassword().trim().isEmpty()) {
+            analyzer.setPassword(passwordEncoder.encode(updateAnalyzerDto.getPassword()));
+        }
+
+        // Update enabled status if provided
+        if (updateAnalyzerDto.getEnabled() != null) {
+            analyzer.setEnabled(updateAnalyzerDto.getEnabled());
+        }
+
+        analyzerRepository.save(analyzer);
+        return "Analyzer updated successfully";
+    }
+
     public List<UserInfoDto> getAllUsersInfo() {
         return userRepository.findAll().stream()
                 .map(user -> UserInfoDto.builder()
@@ -366,11 +404,11 @@ public class AdminServices {
         if (user.isActive()) {
             user.setActive(false);
             userRepository.save(user);
-        }else {
+            return "User disabled successfully";
+        } else {
             user.setActive(true);
             userRepository.save(user);
+            return "User enabled successfully";
         }
-
-        return "ok";
     }
 }

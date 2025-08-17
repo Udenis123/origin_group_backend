@@ -4,6 +4,7 @@ package com.org.group.controller.admin;
 import com.org.group.dto.OrderedProject.ProjectDeclineDto;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.admin.UserInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
@@ -205,6 +206,32 @@ public class AdminController {
     }
 
     @Operation(
+            summary = "Update analyzer information",
+            description = "Update analyzer details by admin"
+    )
+    @PutMapping("/analyzer/{analyzerId}")
+    public ResponseEntity<?> updateAnalyzer(
+            @PathVariable UUID analyzerId,
+            @Valid @RequestBody UpdateAnalyzerDto updateAnalyzerDto) {
+        try {
+            String result = adminServices.updateAnalyzer(analyzerId, updateAnalyzerDto);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Enable or disable analyzer account",
+            description = "Toggle analyzer account status (enabled/disabled)"
+    )
+    @PostMapping("/analyzer/{analyzerId}/toggle-status")
+    public ResponseEntity<?> toggleAnalyzerStatus(@PathVariable UUID analyzerId) {
+        String result = adminServices.enableOrDisableAnalyzer(analyzerId);
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(
             summary = "Get all users",
             description = "Fetch all user personal information for admin review"
     )
@@ -228,8 +255,8 @@ public class AdminController {
             summary = "Disable or enable user in system",
             description = "Disable or enable specific user"
     )
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> DisableUser(@PathVariable UUID userId) {
+    @PostMapping("/user/{userId}/toggle-status")
+    public ResponseEntity<?> toggleUserStatus(@PathVariable UUID userId) {
         return ResponseEntity.ok(adminServices.DisableOrEnableUser(userId));
     }
 
