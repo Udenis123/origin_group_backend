@@ -113,6 +113,9 @@ public class AuthenticationServices {
         if (!user.isEnabled()) {
             throw new UnauthorizedException("User account not verified.");
         }
+        if(!user.isActive()) {
+            throw new UnauthorizedException("User account is disable by origin group contact support.");
+        }
 
         // Perform authentication
         try {

@@ -314,11 +314,16 @@ public class AnalyzerServices {
                 .map(assignment -> {
                     Analyzer analyzer = assignment.getAnalyzer();
                     return AnalyzerInfoDto.builder()
-                            .analyzerId(analyzer.getId())
+                            .id(analyzer.getId())
                             .name(analyzer.getName())
                             .email(analyzer.getEmail())
                             .phone(analyzer.getPhone())
                             .expertise(analyzer.getExpertise())
+                            .profileUrl(analyzer.getProfileUrl())
+                            .nationality(analyzer.getNationality())
+                            .gender(analyzer.getGender())
+                            .nationalId(analyzer.getNationalId())
+                            .enabled(analyzer.isEnabled())
                             .build();
                 })
                 .toList();

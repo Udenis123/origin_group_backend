@@ -11,15 +11,17 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnalyzerInfoDto {
+public class UserInfoDto {
     private UUID id;
     private String name;
     private String email;
     private String phone;
-    private String expertise;
-    private String profileUrl;
-    private String nationality;
-    private String gender;
     private String nationalId;
+    private String gender;
+    private String nationality;
+    private String professional;
+    private String photoUrl;
     private boolean enabled;
+    private boolean subscribed;
+    private boolean isActive;
 }

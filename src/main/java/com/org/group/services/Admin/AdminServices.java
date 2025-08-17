@@ -2,15 +2,19 @@ package com.org.group.services.Admin;
 
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.admin.AnalyzerDto;
+import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UserInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
 import com.org.group.model.project.LaunchProject;
+import com.org.group.model.Users;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.analytics.AnalyticProjectRepository;
 import com.org.group.repository.project.LaunchProjectRepository;
+import com.org.group.repository.UserRepository;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
@@ -36,6 +40,7 @@ public class AdminServices {
     private final PasswordEncoder passwordEncoder;
     private final AnalyticProjectRepository analyticsRepository;
     private final LaunchProjectRepository launchProjectRepository;
+    private final UserRepository userRepository;
 
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
@@ -310,12 +315,62 @@ public class AdminServices {
         return ResponseEntity.ok(pendingProjects);
     }
 
-    public List<Analyzer> getAllAnalyzers() {
-        return analyzerRepository.findAll();
+    public List<AnalyzerInfoDto> getAllAnalyzersInfo() {
+        return analyzerRepository.findAll().stream()
+                .map(analyzer -> AnalyzerInfoDto.builder()
+                        .id(analyzer.getId())
+                        .name(analyzer.getName())
+                        .email(analyzer.getEmail())
+                        .phone(analyzer.getPhone())
+                        .expertise(analyzer.getExpertise())
+                        .profileUrl(analyzer.getProfileUrl())
+                        .nationality(analyzer.getNationality())
+                        .gender(analyzer.getGender())
+                        .nationalId(analyzer.getNationalId())
+                        .enabled(analyzer.isEnabled())
+                        .build())
+                .toList();
     }
 
     public Analyzer getAnalyzerById(UUID analyzerId) {
         return analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+    }
+
+    public List<UserInfoDto> getAllUsersInfo() {
+        return userRepository.findAll().stream()
+                .map(user -> UserInfoDto.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .nationalId(user.getNationalId())
+                        .gender(user.getGender())
+                        .nationality(user.getNationality())
+                        .professional(user.getProfessional())
+                        .photoUrl(user.getPhotoUrl())
+                        .enabled(user.isEnabled())
+                        .subscribed(user.getSubscribed())
+                        .isActive(user.isActive())
+                        .build())
+                .toList();
+    }
+
+    public Users getUserById(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
+    }
+
+    public String DisableOrEnableUser(UUID userId) {
+        Users user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
+        if (user.isActive()) {
+            user.setActive(false);
+            userRepository.save(user);
+        }else {
+            user.setActive(true);
+            userRepository.save(user);
+        }
+
+        return "ok";
     }
 }

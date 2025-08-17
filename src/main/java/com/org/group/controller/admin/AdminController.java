@@ -3,10 +3,13 @@ package com.org.group.controller.admin;
 
 import com.org.group.dto.OrderedProject.ProjectDeclineDto;
 import com.org.group.dto.admin.AnalyzerDto;
+import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UserInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.dto.userResponse.UserRatingResponse;
 import com.org.group.model.analyzer.Analyzer;
+import com.org.group.model.Users;
 import com.org.group.responses.LoginResponseAn;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
@@ -183,11 +186,11 @@ public class AdminController {
 
     @Operation(
             summary = "Get all analyzers",
-            description = "Fetch all analyzer details for admin review"
+            description = "Fetch all analyzer personal information for admin review"
     )
     @GetMapping("/analyzers")
-    public ResponseEntity<List<Analyzer>> getAllAnalyzers() {
-        List<Analyzer> analyzers = adminServices.getAllAnalyzers();
+    public ResponseEntity<List<AnalyzerInfoDto>> getAllAnalyzers() {
+        List<AnalyzerInfoDto> analyzers = adminServices.getAllAnalyzersInfo();
         return ResponseEntity.ok(analyzers);
     }
 
@@ -199,6 +202,35 @@ public class AdminController {
     public ResponseEntity<Analyzer> getAnalyzerById(@PathVariable UUID analyzerId) {
         Analyzer analyzer = adminServices.getAnalyzerById(analyzerId);
         return ResponseEntity.ok(analyzer);
+    }
+
+    @Operation(
+            summary = "Get all users",
+            description = "Fetch all user personal information for admin review"
+    )
+    @GetMapping("/users")
+    public ResponseEntity<List<UserInfoDto>> getAllUsers() {
+        List<UserInfoDto> users = adminServices.getAllUsersInfo();
+        return ResponseEntity.ok(users);
+    }
+
+    @Operation(
+            summary = "Get user by ID",
+            description = "Fetch specific user details by their ID"
+    )
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Users> getUserById(@PathVariable UUID userId) {
+        Users user = adminServices.getUserById(userId);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(
+            summary = "Disable or enable user in system",
+            description = "Disable or enable specific user"
+    )
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> DisableUser(@PathVariable UUID userId) {
+        return ResponseEntity.ok(adminServices.DisableOrEnableUser(userId));
     }
 
 }
