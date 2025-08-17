@@ -10,7 +10,7 @@ import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.UploadFileServices.FileStorageService;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,13 +57,23 @@ public class OrderedProjectServices {
         // Handle file upload
         MultipartFile file1 = dto.getBusinessIdeaDocument();
         MultipartFile file2 = dto.getBusinessPlanDocument();
-        if (file1 != null && !file1.isEmpty()) {
-            String url = cloudinaryService.uploadFile(file1, "businessIdeaDocument_"+user.getId());
-            project.setBusinessIdeaDocumentUrl(url);
+        
+        try {
+            if (file1 != null && !file1.isEmpty()) {
+                String url = cloudinaryService.uploadProjectIdea(file1);
+                project.setBusinessIdeaDocumentUrl(url);
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to upload business idea document", e);
         }
-        if (file2 != null && !file2.isEmpty()) {
-            String url = cloudinaryService.uploadFile(file2, "businessPlanDocument_"+user.getId());
-            project.setBusinessPlanUrl(url);
+        
+        try {
+            if (file2 != null && !file2.isEmpty()) {
+                String url = cloudinaryService.uploadProjectPlan(file2);
+                project.setBusinessPlanUrl(url);
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to upload business plan document", e);
         }
         OrderedProject saved = orderedProjectRepository.save(project);
         return toDto(saved);
@@ -102,13 +112,31 @@ public class OrderedProjectServices {
         // Optionally update file
         MultipartFile file1 = dto.getBusinessIdeaDocument();
         MultipartFile file2 = dto.getBusinessPlanDocument();
-        if (file1 != null && !file1.isEmpty()) {
-            String url = cloudinaryService.uploadFile(file1, "businessIdeaDocument_"+project.getUser().getId());
-            project.setBusinessIdeaDocumentUrl(url);
+        
+        try {
+            if (file1 != null && !file1.isEmpty()) {
+                // Delete old file if exists
+                if (project.getBusinessIdeaDocumentUrl() != null && !project.getBusinessIdeaDocumentUrl().isEmpty()) {
+                    cloudinaryService.deleteFile(project.getBusinessIdeaDocumentUrl());
+                }
+                String url = cloudinaryService.uploadProjectIdea(file1);
+                project.setBusinessIdeaDocumentUrl(url);
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to update business idea document", e);
         }
-        if (file2 != null && !file2.isEmpty()) {
-            String url = cloudinaryService.uploadFile(file2, "businessPlanDocument_"+project.getUser().getId());
-            project.setBusinessPlanUrl(url);
+        
+        try {
+            if (file2 != null && !file2.isEmpty()) {
+                // Delete old file if exists
+                if (project.getBusinessPlanUrl() != null && !project.getBusinessPlanUrl().isEmpty()) {
+                    cloudinaryService.deleteFile(project.getBusinessPlanUrl());
+                }
+                String url = cloudinaryService.uploadProjectPlan(file2);
+                project.setBusinessPlanUrl(url);
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to update business plan document", e);
         }
         OrderedProject saved = orderedProjectRepository.save(project);
         return toDto(saved);

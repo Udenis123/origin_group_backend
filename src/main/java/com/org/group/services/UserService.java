@@ -71,23 +71,35 @@ public class UserService {
         return users;
     }
 
-    public String  updateUserPhoto(UUID userId, MultipartFile file) throws IOException {
+    public String updateUserPhoto(UUID userId, MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("File is empty or null");
+        }
+        
         Optional<Users> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
             Users user = userOpt.get();
-            String fileUrl = cloudinaryService.uploadFile(file, user.getPhotoUrl());
-            user.setPhotoUrl(fileUrl);
-            userRepository.save(user);
-            return "Photo uploaded successfully";
+            try {
+                String fileUrl = cloudinaryService.uploadFile(file, user.getPhotoUrl());
+                user.setPhotoUrl(fileUrl);
+                userRepository.save(user);
+                return "Photo uploaded successfully";
+            } catch (Exception e) {
+                throw new IOException("Failed to upload user photo", e);
+            }
         }
 
         Optional<Analyzer> analyzerOpt = analyzerRepository.findById(userId);
         if (analyzerOpt.isPresent()) {
             Analyzer analyzer = analyzerOpt.get();
-            String photo = cloudinaryService.uploadFile(file, analyzer.getProfileUrl());
-            analyzer.setProfileUrl(photo); // Adjust field name accordingly
-            analyzerRepository.save(analyzer);
-            return "Photo uploaded successfully";
+            try {
+                String photo = cloudinaryService.uploadFile(file, analyzer.getProfileUrl());
+                analyzer.setProfileUrl(photo);
+                analyzerRepository.save(analyzer);
+                return "Photo uploaded successfully";
+            } catch (Exception e) {
+                throw new IOException("Failed to upload analyzer photo", e);
+            }
         }
 
         throw new RuntimeException("User not found");

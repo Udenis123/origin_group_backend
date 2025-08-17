@@ -79,7 +79,7 @@ public class LaunchProjectServices {
 
         try {
             if (businessPlan != null && !businessPlan.isEmpty()) {
-                businessPlanUrl = cloudinaryService.uploadFile(businessPlan, "business_plan");
+                businessPlanUrl = cloudinaryService.uploadProjectPlan(businessPlan);
             }
         } catch (Exception e) {
             throw new IOException("Failed to upload business plan", e);
@@ -87,7 +87,7 @@ public class LaunchProjectServices {
 
         try {
             if (businessIdeaDocument != null && !businessIdeaDocument.isEmpty()) {
-                businessIdeaDocumentUrl = cloudinaryService.uploadFile(businessIdeaDocument, "idea_doc");
+                businessIdeaDocumentUrl = cloudinaryService.uploadProjectIdea(businessIdeaDocument);
             }
         } catch (Exception e) {
             throw new IOException("Failed to upload business idea document", e);
@@ -95,36 +95,36 @@ public class LaunchProjectServices {
 
         try {
             if (projectPhoto != null && !projectPhoto.isEmpty()) {
-                projectPhotoUrl = cloudinaryService.uploadFile(projectPhoto, "project_photo");
+                projectPhotoUrl = cloudinaryService.uploadProjectPhoto(projectPhoto);
             }
         } catch (Exception e) {
             throw new IOException("Failed to upload project photo", e);
         }
         try {
             if (incomeStatement != null && !incomeStatement.isEmpty()) {
-                incomeStatementUrl = cloudinaryService.uploadFile(incomeStatement, "income_statement");
+                incomeStatementUrl = cloudinaryService.uploadProjectPlan(incomeStatement);
             }
         } catch (Exception e) {
-            throw new IOException("Failed to upload income statement ", e);
+            throw new IOException("Failed to upload income statement", e);
         }
         try {
             if (cashFlow != null && !cashFlow.isEmpty()) {
-                cashFlowUrl = cloudinaryService.uploadFile(cashFlow, "cash_flow");
+                cashFlowUrl = cloudinaryService.uploadProjectPlan(cashFlow);
             }
         } catch (Exception e) {
             throw new IOException("Failed to upload cash flow", e);
         }
         try {
             if (balanceSheet != null && !balanceSheet.isEmpty()) {
-                balanceSheetUrl = cloudinaryService.uploadFile(balanceSheet, "balance_sheet");
+                balanceSheetUrl = cloudinaryService.uploadProjectPlan(balanceSheet);
             }
         } catch (Exception e) {
-            throw new IOException("Failed to upload balance Sheet", e);
+            throw new IOException("Failed to upload balance sheet", e);
         }
 
         try {
             if (pitchingVideo != null && !pitchingVideo.isEmpty()) {
-                pitchingVideoUrl = cloudinaryService.uploadFile(pitchingVideo, "pitching_video");
+                pitchingVideoUrl = cloudinaryService.uploadProjectVideo(pitchingVideo);
             }
         } catch (Exception e) {
             throw new IOException("Failed to upload pitching video", e);
@@ -200,7 +200,7 @@ public class LaunchProjectServices {
             if (project.getBusinessPlanUrl() != null && !project.getBusinessPlanUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getBusinessPlanUrl());
             }
-            String url = cloudinaryService.uploadFile(businessPlan, "business_plan");
+            String url = cloudinaryService.uploadProjectPlan(businessPlan);
             project.setBusinessPlanUrl(url);
         } else if (businessPlan == null && project.getBusinessPlanUrl() != null && !project.getBusinessPlanUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getBusinessPlanUrl());
@@ -212,7 +212,7 @@ public class LaunchProjectServices {
             if (project.getBusinessIdeaDocumentUrl() != null && !project.getBusinessIdeaDocumentUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getBusinessIdeaDocumentUrl());
             }
-            String url = cloudinaryService.uploadFile(businessIdeaDocument, "idea_doc");
+            String url = cloudinaryService.uploadProjectIdea(businessIdeaDocument);
             project.setBusinessIdeaDocumentUrl(url);
         } else if (businessIdeaDocument == null && project.getBusinessIdeaDocumentUrl() != null && !project.getBusinessIdeaDocumentUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getBusinessIdeaDocumentUrl());
@@ -224,7 +224,7 @@ public class LaunchProjectServices {
             if (project.getProjectPhotoUrl() != null && !project.getProjectPhotoUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getProjectPhotoUrl());
             }
-            String url = cloudinaryService.uploadFile(projectPhoto, "project_photo");
+            String url = cloudinaryService.uploadProjectPhoto(projectPhoto);
             project.setProjectPhotoUrl(url);
         } else if (projectPhoto == null && project.getProjectPhotoUrl() != null && !project.getProjectPhotoUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getProjectPhotoUrl());
@@ -236,7 +236,7 @@ public class LaunchProjectServices {
             if (project.getPitchingVideoUrl() != null && !project.getPitchingVideoUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getPitchingVideoUrl());
             }
-            String url = cloudinaryService.uploadFile(pitchingVideo, "pitching_video");
+            String url = cloudinaryService.uploadProjectVideo(pitchingVideo);
             project.setPitchingVideoUrl(url);
         } else if (pitchingVideo == null && project.getPitchingVideoUrl() != null && !project.getPitchingVideoUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getPitchingVideoUrl());
@@ -248,7 +248,7 @@ public class LaunchProjectServices {
             if (project.getIncomeStatementUrl() != null && !project.getIncomeStatementUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getIncomeStatementUrl());
             }
-            String url = cloudinaryService.uploadFile(incomeStatement, "income_statement");
+            String url = cloudinaryService.uploadProjectPlan(incomeStatement);
             project.setIncomeStatementUrl(url);
         } else if (incomeStatement == null && project.getIncomeStatementUrl() != null && !project.getIncomeStatementUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getIncomeStatementUrl());
@@ -260,7 +260,7 @@ public class LaunchProjectServices {
             if (project.getCashFlowUrl() != null && !project.getCashFlowUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getCashFlowUrl());
             }
-            String url = cloudinaryService.uploadFile(cashFlow, "cash_flow");
+            String url = cloudinaryService.uploadProjectPlan(cashFlow);
             project.setCashFlowUrl(url);
         } else if (cashFlow == null && project.getCashFlowUrl() != null && !project.getCashFlowUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getCashFlowUrl());
@@ -271,7 +271,7 @@ public class LaunchProjectServices {
             if (project.getBalanceSheetUrl() != null && !project.getBalanceSheetUrl().isEmpty()) {
                 cloudinaryService.deleteFile(project.getBalanceSheetUrl());
             }
-            String url = cloudinaryService.uploadFile(balanceSheet, "balance_sheet");
+            String url = cloudinaryService.uploadProjectPlan(balanceSheet);
             project.setBalanceSheetUrl(url);
         } else if (balanceSheet == null && project.getBalanceSheetUrl() != null && !project.getBalanceSheetUrl().isEmpty()) {
             cloudinaryService.deleteFile(project.getBalanceSheetUrl());

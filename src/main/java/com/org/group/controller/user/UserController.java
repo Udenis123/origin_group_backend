@@ -11,7 +11,6 @@ import com.org.group.model.Users;
 import com.org.group.model.analyzer.Analyzer;
 import com.org.group.responses.ProfileResponse;
 import com.org.group.services.*;
-import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.UploadFileServices.FileStorageService;
 import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.validation.Valid;
@@ -36,13 +35,11 @@ public class UserController {
     private final FileStorageService fileStorageService;
     private final UserService userService;
     private final PlanFilterServices planFilterServices;
-    private final CloudinaryService cloudinaryService;
 
-    public UserController(FileStorageService fileStorageService, UserService userService, PlanFilterServices planFilterServices, CloudinaryService cloudinaryService) {
+    public UserController(FileStorageService fileStorageService, UserService userService, PlanFilterServices planFilterServices) {
         this.fileStorageService = fileStorageService;
         this.userService = userService;
         this.planFilterServices = planFilterServices;
-        this.cloudinaryService = cloudinaryService;
     }
 
     @Operation(summary = "Test endpoint")

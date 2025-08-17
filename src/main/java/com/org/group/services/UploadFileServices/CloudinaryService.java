@@ -20,14 +20,31 @@ public class CloudinaryService {
     }
 
 
-    public void deleteFile(String imageUrl) {
+    public void deleteFile(String fileUrl) {
         try {
-            if (imageUrl != null   && !imageUrl.isEmpty()) {
-                String publicId = extractPublicId(imageUrl);
-                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            if (fileUrl != null && !fileUrl.isEmpty()) {
+                String publicId = extractPublicId(fileUrl);
+                
+                // Try to delete as image first (most common)
+                try {
+                    cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "image"));
+                } catch (Exception imageEx) {
+                    // If image deletion fails, try video
+                    try {
+                        cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "video"));
+                    } catch (Exception videoEx) {
+                        // If video deletion fails, try raw (documents)
+                        try {
+                            cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "raw"));
+                        } catch (Exception rawEx) {
+                            // If all fail, try without resource type
+                            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete image from Cloudinary", e);
+            throw new RuntimeException("Failed to delete file from Cloudinary", e);
         }
     }
 
@@ -41,7 +58,7 @@ public class CloudinaryService {
             deleteFile(oldImageUrl);
         }
         String uniqueFilename = "profile_" + UUID.randomUUID();
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
                 "public_id", uniqueFilename,
                 "use_filename", true,
                 "unique_filename", false,
@@ -51,9 +68,26 @@ public class CloudinaryService {
     }
 
     private String extractPublicId(String imageUrl) {
-        String[] parts = imageUrl.split("/");
-        String filenameWithExtension = parts[parts.length - 1];
-        return filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.')); // Remove file extension
+        try {
+            // Remove query parameters if they exist
+            String cleanUrl = imageUrl.split("\\?")[0];
+            
+            // Split by '/' and get the filename
+            String[] parts = cleanUrl.split("/");
+            String filenameWithExtension = parts[parts.length - 1];
+            
+            // Remove file extension if it exists
+            int lastDotIndex = filenameWithExtension.lastIndexOf('.');
+            if (lastDotIndex > 0) {
+                return filenameWithExtension.substring(0, lastDotIndex);
+            } else {
+                return filenameWithExtension; // No extension found
+            }
+        } catch (Exception e) {
+            // Fallback: try to extract from the last part of URL
+            String[] parts = imageUrl.split("/");
+            return parts[parts.length - 1];
+        }
     }
 
     public String uploadProjectPhoto(MultipartFile file) throws IOException {
@@ -78,7 +112,7 @@ public class CloudinaryService {
         }
 
         String uniqueFilename = resourceType + "_" + UUID.randomUUID();
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
                 "resource_type", resourceType,
                 "public_id", uniqueFilename,
                 "use_filename", true,
