@@ -330,7 +330,17 @@ public class AdminServices {
     }
 
     public Analyzer getAnalyzerById(UUID analyzerId) {
-        return analyzerRepository.findByIdWithAssignments(analyzerId)
+        // Debug: Check actual database count
+        Long assignmentCount = analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
+        System.out.println("Database assignment count for analyzer " + analyzerId + ": " + assignmentCount);
+        
+        Analyzer analyzer = analyzerRepository.findByIdWithAssignments(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+        
+        // Debug: Log assignment count from JPA query
+        System.out.println("JPA assignment count: " + 
+                          (analyzer.getAssignment() != null ? analyzer.getAssignment().size() : "null"));
+        
+        return analyzer;
     }
 }
