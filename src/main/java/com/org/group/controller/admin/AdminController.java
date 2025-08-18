@@ -14,6 +14,7 @@ import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.responses.project.OrderedProjectResponse;
 import com.org.group.role.Role;
 import com.org.group.services.Admin.AdminServices;
+import com.org.group.services.Analyzer.AnalyzerServices;
 import com.org.group.services.OrderedProject.OrderedProjectServices;
 import com.org.group.services.emailAndJwt.JwtService;
 import com.org.group.services.UserService;
@@ -39,12 +40,15 @@ public class AdminController {
     private final AdminServices adminServices;
     private final UserService userService;
     private final OrderedProjectServices orderedProjectServices;
+    private final AnalyzerServices analyzerServices;
+    
     @Autowired
-    public AdminController(JwtService jwtService, AdminServices adminServices, UserService userService, OrderedProjectServices orderedProjectServices) {
+    public AdminController(JwtService jwtService, AdminServices adminServices, UserService userService, OrderedProjectServices orderedProjectServices, AnalyzerServices analyzerServices) {
         this.jwtService = jwtService;
         this.adminServices = adminServices;
         this.userService = userService;
         this.orderedProjectServices = orderedProjectServices;
+        this.analyzerServices = analyzerServices;
     }
 
 
@@ -200,6 +204,24 @@ public class AdminController {
     public ResponseEntity<Analyzer> getAnalyzerById(@PathVariable UUID analyzerId) {
         Analyzer analyzer = adminServices.getAnalyzerById(analyzerId);
         return ResponseEntity.ok(analyzer);
+    }
+
+    @Operation(
+            summary = "Assign project to analyzer",
+            description = "Assign a specific project to an analyzer for analysis"
+    )
+    @PostMapping("/assign-project")
+    public ResponseEntity<String> assignProjectToAnalyzer(
+            @RequestParam("projectId") UUID projectId,
+            @RequestParam("analyzerId") UUID analyzerId) {
+        try {
+            analyzerServices.assignProject(projectId, analyzerId);
+            return ResponseEntity.ok("Project assigned to analyzer successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to assign project: " + e.getMessage());
+        }
     }
 
 }
