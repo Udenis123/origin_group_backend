@@ -245,8 +245,7 @@ public class AdminController {
     @GetMapping("/debug/analyzer/{analyzerId}/assignments")
     public ResponseEntity<?> debugAnalyzerAssignments(@PathVariable UUID analyzerId) {
         try {
-            Long dbCount = adminServices.getAssignmentCountFromDB(analyzerId);
-            return ResponseEntity.ok("Database assignment count: " + dbCount);
+            return ResponseEntity.ok(adminServices.debugAnalyzerAssignments(analyzerId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }

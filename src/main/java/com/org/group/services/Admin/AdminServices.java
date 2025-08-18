@@ -8,6 +8,7 @@ import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
+import com.org.group.model.analyzer.Assignment;
 import com.org.group.model.project.LaunchProject;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.analytics.AnalyticProjectRepository;
@@ -346,5 +347,49 @@ public class AdminServices {
 
     public Long getAssignmentCountFromDB(UUID analyzerId) {
         return analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
+    }
+
+    public String debugAnalyzerAssignments(UUID analyzerId) {
+        StringBuilder debug = new StringBuilder();
+        
+        // 1. Check if analyzer exists
+        Optional<Analyzer> analyzerOpt = analyzerRepository.findById(analyzerId);
+        debug.append("Analyzer exists: ").append(analyzerOpt.isPresent()).append("\n");
+        
+        if (!analyzerOpt.isPresent()) {
+            return debug.toString();
+        }
+        
+        Analyzer analyzer = analyzerOpt.get();
+        
+        // 2. Check database count
+        Long dbCount = analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
+        debug.append("Database assignment count: ").append(dbCount).append("\n");
+        
+        // 2.1. Get raw database details
+        List<Object[]> rawAssignments = analyzerRepository.getAssignmentDetailsForAnalyzer(analyzerId);
+        debug.append("Raw assignments from DB: ").append(rawAssignments.size()).append("\n");
+        for (Object[] row : rawAssignments) {
+            debug.append("DB Row: ");
+            for (Object col : row) {
+                debug.append(col).append(" | ");
+            }
+            debug.append("\n");
+        }
+        
+        // 3. Check JPA relationship
+        Set<Assignment> assignments = analyzer.getAssignment();
+        debug.append("JPA assignment set: ").append(assignments != null ? "not null" : "null").append("\n");
+        debug.append("JPA assignment count: ").append(assignments != null ? assignments.size() : "null").append("\n");
+        
+        // 4. Initialize the collection manually if lazy
+        if (assignments != null) {
+            debug.append("Assignment set size after access: ").append(assignments.size()).append("\n");
+            for (Assignment assignment : assignments) {
+                debug.append("Assignment ID: ").append(assignment.getId()).append("\n");
+            }
+        }
+        
+        return debug.toString();
     }
 }

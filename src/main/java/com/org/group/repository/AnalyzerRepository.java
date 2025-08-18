@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,4 +22,8 @@ public interface AnalyzerRepository extends JpaRepository<Analyzer, UUID> {
     // Alternative query to debug
     @Query(value = "SELECT COUNT(*) FROM assigment_analyser WHERE analyzer_id = :analyzerId", nativeQuery = true)
     Long countAssignmentsByAnalyzerId(@Param("analyzerId") UUID analyzerId);
+    
+    // Get assignment details for debugging
+    @Query(value = "SELECT * FROM assigment_analyser WHERE analyzer_id = :analyzerId", nativeQuery = true)
+    List<Object[]> getAssignmentDetailsForAnalyzer(@Param("analyzerId") UUID analyzerId);
 }
