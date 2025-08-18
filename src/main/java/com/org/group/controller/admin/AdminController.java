@@ -238,4 +238,18 @@ public class AdminController {
         }
     }
 
+    @Operation(
+            summary = "Debug: Check assignments for analyzer",
+            description = "Debug endpoint to check assignment count and details"
+    )
+    @GetMapping("/debug/analyzer/{analyzerId}/assignments")
+    public ResponseEntity<?> debugAnalyzerAssignments(@PathVariable UUID analyzerId) {
+        try {
+            Long dbCount = adminServices.getAssignmentCountFromDB(analyzerId);
+            return ResponseEntity.ok("Database assignment count: " + dbCount);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 }
