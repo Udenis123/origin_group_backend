@@ -56,7 +56,7 @@ public class Analyzer implements UserDetails {
     private Set<Role> roles;
 
 
-    @OneToMany(mappedBy = "analyzer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "analyzer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Assignment> assignment;
 
     @Override
