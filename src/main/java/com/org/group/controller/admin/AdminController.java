@@ -211,7 +211,7 @@ public class AdminController {
             description = "Assign a specific project to an analyzer for analysis"
     )
     @PostMapping("/assign-project")
-    public ResponseEntity<String> assignProjectToAnalyzer(
+    public ResponseEntity<String> assignProject(
             @RequestParam("projectId") UUID projectId,
             @RequestParam("analyzerId") UUID analyzerId) {
         try {
@@ -219,8 +219,22 @@ public class AdminController {
             return ResponseEntity.ok("Project assigned to analyzer successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Failed to assign project: " + e.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Unassign project from analyzer",
+            description = "Remove a project assignment from an analyzer"
+    )
+    @DeleteMapping("/unassign-project")
+    public ResponseEntity<String> unassignProject(
+            @RequestParam("projectId") UUID projectId,
+            @RequestParam("analyzerId") UUID analyzerId) {
+        try {
+            String result = analyzerServices.unassignProject(projectId, analyzerId);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

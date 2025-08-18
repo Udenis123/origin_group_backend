@@ -112,6 +112,33 @@ public class AnalyzerServices {
         assignmentRepository.save(assignment);
     }
 
+    public String unassignProject(UUID projectId, UUID analyzerId) {
+        LaunchProject project = launchProjectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        // Verify analyzer exists
+        analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new IllegalArgumentException("Analyzer not found"));
+
+        // Check if the assignment exists
+        if (!assignmentRepository.existsByProject_ProjectIdAndAnalyzer_Id(projectId, analyzerId)) {
+            throw new IllegalArgumentException("No assignment found between this project and analyzer");
+        }
+
+        // Find and delete the assignment
+        Assignment assignment = assignmentRepository.findByProject_ProjectIdAndAnalyzer_Id(projectId, analyzerId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+
+        // Decrease assignment count
+        if (project.getCountAssignment() > 0) {
+            project.setCountAssignment(project.getCountAssignment() - 1);
+            launchProjectRepository.save(project);
+        }
+
+        assignmentRepository.delete(assignment);
+        
+        return "Project unassigned from analyzer successfully";
+    }
 
     public ResponseEntity<List<LaunchProjectResponse>> getAllAssignedProject(UUID analyzerId) {
         List<LaunchProject> projects = assignmentRepository.findPendingProjectsByAnalyzerId(analyzerId);

@@ -330,7 +330,7 @@ public class AdminServices {
     }
 
     public Analyzer getAnalyzerById(UUID analyzerId) {
-        return analyzerRepository.findById(analyzerId)
+        return analyzerRepository.findByIdWithAssignments(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
     }
 }

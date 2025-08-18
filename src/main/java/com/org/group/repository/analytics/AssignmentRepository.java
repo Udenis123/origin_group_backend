@@ -15,6 +15,8 @@ import java.util.UUID;
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     Optional<Assignment> findByProjectProjectId(UUID projectId);
     boolean existsByProject_ProjectIdAndAnalyzer_Id(UUID projectId, UUID analyzerId);
+    Optional<Assignment> findByProject_ProjectIdAndAnalyzer_Id(UUID projectId, UUID analyzerId);
+    
     @Query("SELECT a.project FROM Assignment a WHERE a.analyzer.id = :analyzerId AND a.project.status = com.org.group.dto.LaunchProject.AnalyticStatus.PENDING")
     List<LaunchProject> findPendingProjectsByAnalyzerId(@Param("analyzerId") UUID analyzerId);
 
