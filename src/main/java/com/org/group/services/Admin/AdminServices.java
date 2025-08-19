@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import com.org.group.dto.admin.AssignedProjectDto;
 
 @Service
 @RequiredArgsConstructor
@@ -333,19 +334,33 @@ public class AdminServices {
                 .toList();
     }
 
-    public Analyzer getAnalyzerById(UUID analyzerId) {
-        // Debug: Check actual database count
-        Long assignmentCount = analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
-        System.out.println("Database assignment count for analyzer " + analyzerId + ": " + assignmentCount);
-        
-        Analyzer analyzer = analyzerRepository.findById(analyzerId)
+    public AnalyzerInfoDto getAnalyzerById(UUID analyzerId) {
+        Analyzer analyzer = analyzerRepository.findByIdWithAssignments(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-        
-        // Debug: Log assignment count from JPA query
-        System.out.println("JPA assignment count: " + 
-                          (analyzer.getAssignment() != null ? analyzer.getAssignment().size() : "null"));
-        
-        return analyzer;
+
+        List<AssignedProjectDto> assignedProjects = analyzer.getAssignment().stream()
+                .map(assignment -> AssignedProjectDto.builder()
+                        .projectId(assignment.getProject().getProjectId())
+                        .projectName(assignment.getProject().getProjectName())
+                        .description(assignment.getProject().getDescription())
+                        .status(assignment.getProject().getStatus())
+                        .projectPhotoUrl(assignment.getProject().getProjectPhotoUrl())
+                        .build())
+                .toList();
+
+        return AnalyzerInfoDto.builder()
+                .id(analyzer.getId())
+                .name(analyzer.getName())
+                .email(analyzer.getEmail())
+                .phone(analyzer.getPhone())
+                .expertise(analyzer.getExpertise())
+                .profileUrl(analyzer.getProfileUrl())
+                .nationality(analyzer.getNationality())
+                .gender(analyzer.getGender())
+                .nationalId(analyzer.getNationalId())
+                .enabled(analyzer.isEnabled())
+                .assignedProjects(assignedProjects)
+                .build();
     }
 
     public Long getAssignmentCountFromDB(UUID analyzerId) {

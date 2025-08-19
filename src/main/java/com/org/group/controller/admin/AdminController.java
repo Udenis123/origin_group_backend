@@ -207,8 +207,8 @@ public class AdminController {
             description = "Fetch specific analyzer details by their ID"
     )
     @GetMapping("/analyzer/{analyzerId}")
-    public ResponseEntity<Analyzer> getAnalyzerById(@PathVariable UUID analyzerId) {
-        Analyzer analyzer = adminServices.getAnalyzerById(analyzerId);
+    public ResponseEntity<AnalyzerInfoDto> getAnalyzerById(@PathVariable UUID analyzerId) {
+        AnalyzerInfoDto analyzer = adminServices.getAnalyzerById(analyzerId);
         return ResponseEntity.ok(analyzer);
     }
 
