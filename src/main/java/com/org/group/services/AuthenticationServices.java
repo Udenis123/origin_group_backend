@@ -74,8 +74,9 @@ public class AuthenticationServices {
                 .enabled(false)
                 .photoUrl("https://static.vecteezy.com/system/resources/thumbnails/010/260/479/small_2x/default-avatar-profile-icon-of-social-media-user-in-clipart-style-vector.jpg")
                 .verificationCode(generateVerificationCode())
-                .codeExpiryAt(LocalDateTime.now().plusMinutes(3))
+                .codeExpiryAt(LocalDateTime.now().plusMinutes(10))
                 .roles(Set.of(Role.CLIENT))
+                .isActive(true)
                 .subscribed(false)
                 .build();
 
