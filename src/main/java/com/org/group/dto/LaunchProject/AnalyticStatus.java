@@ -4,4 +4,6 @@ public enum AnalyticStatus {
     PENDING,
     APPROVED,
     DECLINED,
+    PRODUCTION,
+    COMPLETED,
 }
