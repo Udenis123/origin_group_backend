@@ -76,6 +76,9 @@ public class Users implements UserDetails {
     @Column(nullable = false)
     private Boolean subscribed;
 
+    @Column(nullable = true)
+    private boolean isActive;
+
     @Column(name = "photo_url")
     private String photoUrl;
 

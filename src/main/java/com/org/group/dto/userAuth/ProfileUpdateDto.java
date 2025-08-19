@@ -27,4 +27,10 @@ public class ProfileUpdateDto {
     @Size(min = 10, max = 50, message = "Name must be between 10 and 50 characters")
     private String name;
 
+    private String nationality;
+    private String profession;
+    private String nationalId;
+    private String gender;
+    private String phoneNumber;
+
 }

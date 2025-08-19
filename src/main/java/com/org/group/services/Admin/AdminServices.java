@@ -6,13 +6,15 @@ import com.org.group.dto.admin.AnalyzerInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
+import com.org.group.model.Users;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
-import com.org.group.model.analyzer.Assignment;
 import com.org.group.model.project.LaunchProject;
 import com.org.group.repository.AnalyzerRepository;
+import com.org.group.repository.UserRepository;
 import com.org.group.repository.analytics.AnalyticProjectRepository;
 import com.org.group.repository.project.LaunchProjectRepository;
+import com.org.group.responses.Users.ClientResponseDto;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
@@ -24,10 +26,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import com.org.group.dto.admin.AssignedProjectDto;
 
 @Service
@@ -39,6 +39,7 @@ public class AdminServices {
     private final PasswordEncoder passwordEncoder;
     private final AnalyticProjectRepository analyticsRepository;
     private final LaunchProjectRepository launchProjectRepository;
+    private final UserRepository userRepository;
 
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
@@ -58,14 +59,16 @@ public class AdminServices {
         analyzerRepository.save(analyzer);
     }
     public String enableOrDisableAnalyzer(UUID analyzerId) {
-          Analyzer analyzer = analyzerRepository.findById(analyzerId).orElseThrow(()-> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
-          if(analyzer.isEnabled()){
-              analyzer.setEnabled(false);
-          }else {
-              analyzer.setEnabled(true);
-          }
-          analyzerRepository.save(analyzer);
-        return "Action Successful" ;
+        Analyzer analyzer = analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+        if(analyzer.isEnabled()){
+            analyzer.setEnabled(false);
+        } else {
+            analyzer.setEnabled(true);
+        }
+        analyzerRepository.save(analyzer);
+
+        return "Action Successful";
     }
 
 
@@ -363,51 +366,35 @@ public class AdminServices {
                 .build();
     }
 
-    public Long getAssignmentCountFromDB(UUID analyzerId) {
-        return analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
-    }
 
-    public String debugAnalyzerAssignments(UUID analyzerId) {
-        StringBuilder debug = new StringBuilder();
-        
-        // 1. Check if analyzer exists
-        Optional<Analyzer> analyzerOpt = analyzerRepository.findById(analyzerId);
-        debug.append("Analyzer exists: ").append(analyzerOpt.isPresent()).append("\n");
-        
-        if (!analyzerOpt.isPresent()) {
-            return debug.toString();
-        }
-        
-        Analyzer analyzer = analyzerOpt.get();
-        
-        // 2. Check database count
-        Long dbCount = analyzerRepository.countAssignmentsByAnalyzerId(analyzerId);
-        debug.append("Database assignment count: ").append(dbCount).append("\n");
-        
-        // 2.1. Get raw database details
-        List<Object[]> rawAssignments = analyzerRepository.getAssignmentDetailsForAnalyzer(analyzerId);
-        debug.append("Raw assignments from DB: ").append(rawAssignments.size()).append("\n");
-        for (Object[] row : rawAssignments) {
-            debug.append("DB Row: ");
-            for (Object col : row) {
-                debug.append(col).append(" | ");
-            }
-            debug.append("\n");
-        }
-        
-        // 3. Check JPA relationship
-        Set<Assignment> assignments = analyzer.getAssignment();
-        debug.append("JPA assignment set: ").append(assignments != null ? "not null" : "null").append("\n");
-        debug.append("JPA assignment count: ").append(assignments != null ? assignments.size() : "null").append("\n");
-        
-        // 4. Initialize the collection manually if lazy
-        if (assignments != null) {
-            debug.append("Assignment set size after access: ").append(assignments.size()).append("\n");
-            for (Assignment assignment : assignments) {
-                debug.append("Assignment ID: ").append(assignment.getId()).append("\n");
-            }
-        }
-        
-        return debug.toString();
+    public List<ClientResponseDto> getAllClient() {
+        List<Users> users = userRepository.findAll();
+
+        return users.stream()
+                .map(user -> {
+                    ClientResponseDto.ClientResponseDtoBuilder builder = ClientResponseDto.builder()
+
+                            .id(user.getId())
+                            .name(user.getName())
+                            .email(user.getEmail())
+                            .phone(user.getPhone())
+                            .gender(user.getGender())
+                            .nationality(user.getNationality())
+                            .nationalId(user.getNationalId())
+                            .enabled(user.isEnabled())
+                            .subscribed(user.getSubscribed())
+                            .photoUrl(user.getPhotoUrl())
+                            .professional(user.getProfessional())
+                            .isActive(user.isActive())
+                            .subscriptions(user.getSubscriptions())
+                            .tempEmail(user.getTempEmail())
+                            .enabled(user.isEnabled())
+                            .verificationCode(user.getVerificationCode())
+                            .codeExpiryAt(user.getCodeExpiryAt())
+                            ;
+
+                    return builder.build();
+                })
+                .toList();
     }
 }

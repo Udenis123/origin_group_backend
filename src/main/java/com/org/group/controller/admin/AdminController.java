@@ -7,9 +7,11 @@ import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
+import com.org.group.dto.userAuth.ProfileUpdateDto;
 import com.org.group.dto.userResponse.UserRatingResponse;
 import com.org.group.model.analyzer.Analyzer;
 import com.org.group.responses.LoginResponseAn;
+import com.org.group.responses.Users.ClientResponseDto;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.responses.project.OrderedProjectResponse;
@@ -83,7 +85,7 @@ public class AdminController {
     }
 
     @PostMapping("/enable/analyzer")
-    public String enableOrDisableAnalyzerAccount(@RequestPart("analyzerId") UUID analyzerId) {
+    public String enableOrDisableAnalyzer(@RequestParam("analyzerId") UUID analyzerId) {
         return adminServices.enableOrDisableAnalyzer(analyzerId);
     }
 
@@ -245,16 +247,46 @@ public class AdminController {
     }
 
     @Operation(
-            summary = "Debug: Check assignments for analyzer",
-            description = "Debug endpoint to check assignment count and details"
+            summary = "get  user information ",
+            description = "get All user Information"
     )
-    @GetMapping("/debug/analyzer/{analyzerId}/assignments")
-    public ResponseEntity<?> debugAnalyzerAssignments(@PathVariable UUID analyzerId) {
+    @GetMapping("/all/clients")
+    public  ResponseEntity<List<ClientResponseDto>> getAllClientResponses() {
+        return  ResponseEntity.ok(adminServices.getAllClient());
+
+    }
+    @Operation(
+            summary = "Update user information by ID",
+            description = "Updates user information (name, email, phone, gender, nationality, profession) by ID"
+    )
+    @PutMapping("/update/user")
+    public ResponseEntity<?> updateClient(@Valid @RequestBody ProfileUpdateDto profileUpdateDto){
         try {
-            return ResponseEntity.ok(adminServices.debugAnalyzerAssignments(analyzerId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+
+            return ResponseEntity.ok(userService.updateUserInformationAdmin(profileUpdateDto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @Operation(
+            summary = "update user  by ID",
+            description = "Updates user information (name, email, phone, gender, nationality, profession) by ID"
+    )
+    @PutMapping("/activate/user")
+    public ResponseEntity<?> ActivateOrInactivate(@RequestParam("Id") UUID id) {
+        try {
+
+            return ResponseEntity.ok(userService.ActivateOrInactivate(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
+
+
+
 
 }

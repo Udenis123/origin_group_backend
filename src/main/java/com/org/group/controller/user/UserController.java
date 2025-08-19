@@ -125,6 +125,10 @@ public class UserController {
         }
     }
 
+    @Operation(
+        summary = "Update user information by ID",
+        description = "Updates user information (name, email, phone, gender, nationality, profession) by ID"
+    )
     @PutMapping("/setting/profile/update")
     public ResponseEntity<?> updateClient(@Valid @RequestBody ProfileUpdateDto profileUpdateDto){
         try {
