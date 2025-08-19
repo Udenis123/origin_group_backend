@@ -34,8 +34,8 @@ public class OrderedProjectResponse {
     private String doYouNeedIntellectualProject;
     private String doYouNeedBusinessPlan;
     private String businessIdea;
-    private MultipartFile businessIdeaDocument;
-    private MultipartFile businessPlanDocument;
+    private String businessIdeaDocumentUrl;
+    private String businessPlanDocumentUrl;
     private AnalyticStatus status;
     private String reasons;
 }

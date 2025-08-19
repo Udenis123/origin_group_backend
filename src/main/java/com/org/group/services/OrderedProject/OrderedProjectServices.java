@@ -168,6 +168,8 @@ public class OrderedProjectServices {
         dto.setDoYouNeedBusinessPlan(project.getDoYouNeedBusinessPlan());
         dto.setBusinessIdea(project.getBusinessIdea());
         dto.setStatus(project.getStatus());
+        dto.setBusinessPlanDocumentUrl(project.getBusinessIdeaDocumentUrl());
+        dto.setBusinessIdeaDocumentUrl(project.getBusinessIdeaDocumentUrl());
         dto.setUserId(project.getUser().getId());
         return dto;
     }
