@@ -1,6 +1,7 @@
 package com.org.group.controller.admin;
 
 
+import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.OrderedProject.ProjectDeclineDto;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
@@ -136,6 +137,11 @@ public class AdminController {
     @GetMapping("/pending/project")
     public ResponseEntity<List<LaunchProjectResponse>> getPendingProjects() {
         return ResponseEntity.ok(adminServices.getAllPendingProject().getBody());
+    }
+
+    @PatchMapping("/ordered/status/update")
+    public String updateOrderedStatus(@RequestParam("projectId") UUID projectId, @RequestParam("status") AnalyticStatus status, @RequestParam(value = "reason", required = false) String reason) {
+        return orderedProjectServices.updateOrderedProjectStatus(projectId, status, reason);
     }
 
     @Operation(

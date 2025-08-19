@@ -217,6 +217,9 @@ public class AdminServices {
     public ResponseEntity<List<LaunchedProjectAnalyticsResponse>> getAllPendingAndHaveAnalytics() {
         List<LaunchProject> projects = launchProjectRepository.findAll();
 
+       if(projects.isEmpty()) {
+           return ResponseEntity.noContent().build();
+       }
 
         List<LaunchedProjectAnalyticsResponse> pendingProjects = projects.stream()
                 .filter(project -> "PENDING".equalsIgnoreCase(project.getStatus().toString()) && project.getAnalyticProject().isAnalyticsEnabled()) // adjust the value based on your enum or constant

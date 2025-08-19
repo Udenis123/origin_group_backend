@@ -207,4 +207,14 @@ public class OrderedProjectServices {
         return projects.stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    public String updateOrderedProjectStatus(UUID projectId, AnalyticStatus status, String reason) {
+        OrderedProject project = orderedProjectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Could not find project with id: " + projectId));
+
+        project.setStatus(status);
+        project.setReasons(reason);
+        orderedProjectRepository.save(project);
+
+        return "Ordered project status updated successfully.";
+    }
 }

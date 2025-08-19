@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,7 +57,8 @@ public class Analyzer implements UserDetails {
     private Set<Role> roles;
 
 
-    @OneToMany(mappedBy = "analyzer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "analyzer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Assignment> assignment;
 
     @Override
