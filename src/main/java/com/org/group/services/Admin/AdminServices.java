@@ -18,6 +18,7 @@ import com.org.group.responses.Users.ClientResponseDto;
 import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
+import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ public class AdminServices {
     private final AnalyticProjectRepository analyticsRepository;
     private final LaunchProjectRepository launchProjectRepository;
     private final UserRepository userRepository;
+    private final PlanFilterServices planFilterServices;
 
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
@@ -369,32 +371,31 @@ public class AdminServices {
 
     public List<ClientResponseDto> getAllClient() {
         List<Users> users = userRepository.findAll();
+        List<ClientResponseDto> clients = users.stream().map(
 
-        return users.stream()
-                .map(user -> {
-                    ClientResponseDto.ClientResponseDtoBuilder builder = ClientResponseDto.builder()
+                client->{
+                    String filteredPlan = planFilterServices.getPlanFiltered(client);
+                     return ClientResponseDto.builder()
+                            .id(client.getId())
+                            .name(client.getName())
+                            .email(client.getEmail())
+                            .phone(client.getPhone())
+                            .enabled(client.isEnabled())
+                            .isActive(client.isActive())
+                            .nationalId(client.getNationalId())
+                            .gender(client.getGender())
+                            .photoUrl(client.getPhotoUrl())
+                            .professional(client.getProfessional())
+                            .tempEmail(client.getTempEmail())
+                            .roles(client.getRoles())
+                            .subscribed(client.getSubscribed())
+                            .nationality(client.getNationality())
+                             .currentSubscription(filteredPlan)
+                            .build();
+                }
+        ).toList();
 
-                            .id(user.getId())
-                            .name(user.getName())
-                            .email(user.getEmail())
-                            .phone(user.getPhone())
-                            .gender(user.getGender())
-                            .nationality(user.getNationality())
-                            .nationalId(user.getNationalId())
-                            .enabled(user.isEnabled())
-                            .subscribed(user.getSubscribed())
-                            .photoUrl(user.getPhotoUrl())
-                            .professional(user.getProfessional())
-                            .isActive(user.isActive())
-                            .subscriptions(user.getSubscriptions())
-                            .tempEmail(user.getTempEmail())
-                            .enabled(user.isEnabled())
-                            .verificationCode(user.getVerificationCode())
-                            .codeExpiryAt(user.getCodeExpiryAt())
-                            ;
 
-                    return builder.build();
-                })
-                .toList();
+        return clients;
     }
 }

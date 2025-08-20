@@ -32,6 +32,6 @@ public class ClientResponseDto {
     private boolean isActive;
     private String photoUrl;
     private String tempEmail;
-    private Set<UserSubscription> subscriptions;
+    private String currentSubscription;
 
 }
