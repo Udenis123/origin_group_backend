@@ -155,22 +155,6 @@ public class UserService {
         return "User information updated successfully";
 
     }
-    public String updateUserInformationAdmin(ProfileUpdateDto profileUpdateDto) {
-        Users user = userRepository.findById(profileUpdateDto.getId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setName(profileUpdateDto.getName());
-        user.setPhone(profileUpdateDto.getPhone());
-        user.setProfessional(profileUpdateDto.getProfessional());
-        user.setNationality(profileUpdateDto.getNationality());
-        user.setNationalId(profileUpdateDto.getNationalId());
-        user.setProfessional(profileUpdateDto.getProfessional());
-        user.setGender(profileUpdateDto.getGender());
-        user.setPhone(profileUpdateDto.getPhone());
-        userRepository.save(user);
-        return "User information updated successfully";
-
-    }
 
     public String ActivateOrInactivate(UUID id) {
         Users users = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));

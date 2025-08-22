@@ -118,6 +118,20 @@ public class CommunityProjectService {
         }
     }
 
+    // Delete team member
+    public CommunityProject deleteTeamMember(UUID projectId, int teamMemberIndex) {
+        CommunityProject project = getProjectById(projectId);
+        List<TeamMember> team = project.getTeam();
+        
+        if (teamMemberIndex >= 0 && teamMemberIndex < team.size()) {
+            team.remove(teamMemberIndex);
+            project.setTeam(team);
+            return communityProjectRepository.save(project);
+        } else {
+            throw new IllegalArgumentException("Invalid team member index: " + teamMemberIndex);
+        }
+    }
+
     // Approve community project
     public CommunityProject approveProject(UUID projectId) {
         CommunityProject project = getProjectById(projectId);

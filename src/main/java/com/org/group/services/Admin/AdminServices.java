@@ -19,6 +19,8 @@ import com.org.group.responses.project.LaunchProjectResponse;
 import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
 import com.org.group.services.emailAndJwt.PlanFilterServices;
+import com.org.group.services.emailAndJwt.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,7 @@ public class AdminServices {
     private final LaunchProjectRepository launchProjectRepository;
     private final UserRepository userRepository;
     private final PlanFilterServices planFilterServices;
+    private final EmailService emailService;
 
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
@@ -59,6 +62,14 @@ public class AdminServices {
                 .nationality(analyzerDto.getNationality())
                 .build();
         analyzerRepository.save(analyzer);
+        
+        // Send welcome email with login credentials
+        try {
+            sendAnalyzerWelcomeEmail(analyzer, analyzerDto.getPassword());
+        } catch (MessagingException e) {
+            // Log the error but don't fail the registration
+            System.err.println("Failed to send welcome email to analyzer: " + e.getMessage());
+        }
     }
 
     public void updateAnalyzer(UUID analyzerId, AnalyzerDto analyzerDto) {
@@ -435,5 +446,57 @@ public class AdminServices {
 
 
         return clients;
+    }
+
+    private void sendAnalyzerWelcomeEmail(Analyzer analyzer, String plainPassword) throws MessagingException {
+        String subject = "Welcome to Origin Group - Your Analyzer Account";
+        String htmlMessage = createAnalyzerWelcomeEmailContent(analyzer, plainPassword);
+        emailService.sendVerificationEmail(analyzer.getEmail(), subject, htmlMessage);
+    }
+
+    private String createAnalyzerWelcomeEmailContent(Analyzer analyzer, String plainPassword) {
+        return "<html>" +
+                "<head>" +
+                "<style>" +
+                "  body { font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0; }" +
+                "  .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }" +
+                "  .header { background-color: #131b5a; color: #ffffff; text-align: center; padding: 20px; }" +
+                "  .header h1 { margin: 0; font-size: 24px; font-weight: bold; }" +
+                "  .content { padding: 30px; text-align: center; }" +
+                "  .content h2 { color: #333333; font-size: 20px; margin-bottom: 20px; }" +
+                "  .credentials { background-color: #f0f0f0; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: left; }" +
+                "  .credentials h3 { color: #131b5a; margin-top: 0; }" +
+                "  .credentials p { margin: 10px 0; font-size: 16px; }" +
+                "  .login-button { display: inline-block; background-color: #131b5a; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }" +
+                "  .login-button:hover { background-color: #0f1447; }" +
+                "  .footer { text-align: center; padding: 20px; font-size: 14px; color: #666666; background-color: #fbdfb8; }" +
+                "  .footer a { color: #007bff; text-decoration: none; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='email-container'>" +
+                "  <div class='header'>" +
+                "    <h1>Welcome to Origin Group</h1>" +
+                "  </div>" +
+                "  <div class='content'>" +
+                "    <h2>Your Analyzer Account is Ready!</h2>" +
+                "    <p>Dear " + analyzer.getName() + ",</p>" +
+                "    <p>Welcome to Origin Group! Your analyzer account has been successfully created.</p>" +
+                "    <div class='credentials'>" +
+                "      <h3>Your Login Credentials:</h3>" +
+                "      <p><strong>Email:</strong> " + analyzer.getEmail() + "</p>" +
+                "      <p><strong>Password:</strong> " + plainPassword + "</p>" +
+                "    </div>" +
+                "    <p>Please use these credentials to log in to your account and start analyzing projects.</p>" +
+                "    <a href='http://localhost:4201/login' class='login-button'>Login to Your Account</a>" +
+                "    <p><small>If the button doesn't work, copy and paste this link: <a href='http://localhost:4201/login'>http://localhost:4201/login</a></small></p>" +
+                "  </div>" +
+                "  <div class='footer'>" +
+                "    <p>Need help? <a href='mailto:origin@group.com'>Contact Support</a></p>" +
+                "    <p>&copy; 2025 Origin Group. All rights reserved.</p>" +
+                "  </div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
     }
 }

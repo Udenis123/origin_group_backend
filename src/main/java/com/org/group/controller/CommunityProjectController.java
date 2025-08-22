@@ -109,4 +109,19 @@ public class CommunityProjectController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
+    @Operation(summary = "Delete team member", description = "Deletes a specific team member at the given index from a project")
+    @DeleteMapping("/{id}/team-members/{index}")
+    public ResponseEntity<CommunityProject> deleteTeamMember(
+            @PathVariable UUID id, 
+            @PathVariable int index) {
+        try {
+            CommunityProject updatedProject = communityProjectService.deleteTeamMember(id, index);
+            return ResponseEntity.ok(updatedProject);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
 }

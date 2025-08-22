@@ -278,19 +278,6 @@ public class AdminController {
         return  ResponseEntity.ok(adminServices.getAllClient());
 
     }
-    @Operation(
-            summary = "Update user information by ID",
-            description = "Updates user information (name, email, phone, gender, nationality, profession) by ID"
-    )
-    @PutMapping("/update/user")
-    public ResponseEntity<?> updateClient(@Valid @RequestBody ProfileUpdateDto profileUpdateDto){
-        try {
-
-            return ResponseEntity.ok(userService.updateUserInformationAdmin(profileUpdateDto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     @Operation(
             summary = "update user  by ID",
