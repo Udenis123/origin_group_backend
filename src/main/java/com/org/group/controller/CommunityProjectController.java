@@ -22,24 +22,25 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/community/project")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class CommunityProjectController {
 
     private final CommunityProjectService communityProjectService;
     private final CloudinaryService cloudinaryService;
 
-  @Operation(summary = "Create a new community project", description = "Allows users to submit a new community project with photo upload")
-    @PostMapping
-    public ResponseEntity<CommunityProject> createProject(
-            @RequestParam UUID userId,
-            @RequestBody CommunityDto project,
-            @RequestPart(value = "projectPhoto") MultipartFile projectPhoto) throws IOException {
-         String PhotoUrl = cloudinaryService.uploadProjectPhoto(projectPhoto);
-         if (PhotoUrl == null) {
-             return  ResponseEntity.badRequest().build();
-         }
-        CommunityProject savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
-        return ResponseEntity.ok(savedProject);
-    }
+    @Operation(summary = "Create a new community project", description = "Allows users to submit a new community project with photo upload")
+     @PostMapping(consumes = "multipart/form-data")
+     public ResponseEntity<CommunityProject> createProject(
+             @RequestParam("userId") UUID userId,
+             @RequestPart("project") CommunityDto project,
+             @RequestPart("projectPhoto") MultipartFile projectPhoto) throws IOException {
+          String PhotoUrl = cloudinaryService.uploadProjectPhoto(projectPhoto);
+          if (PhotoUrl == null) {
+              return  ResponseEntity.badRequest().build();
+          }
+         CommunityProject savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
+         return ResponseEntity.ok(savedProject);
+     }
 
     @Operation(summary = "Get project by ID", description = "Retrieves detailed information about a specific community project")
     @GetMapping("/{id}")
