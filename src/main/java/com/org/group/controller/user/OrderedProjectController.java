@@ -23,7 +23,7 @@ public class OrderedProjectController {
     private OrderedProjectServices orderedProjectServices;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<OrderedProjectResponse> createOrderedProject(
+    public ResponseEntity<String> createOrderedProject(
             @RequestParam("userId") UUID userId,
             @RequestPart("dto") OrderedProjectDto dto,
             @RequestPart(value = "businessIdeaDocument", required = false) MultipartFile businessIdeaDocument,
@@ -31,8 +31,7 @@ public class OrderedProjectController {
     ) throws IOException {
         dto.setBusinessIdeaDocument(businessIdeaDocument);
         dto.setBusinessPlanDocument(businessPlanDocument);
-        OrderedProjectResponse created = orderedProjectServices.createOrderedProject(userId,dto);
-        return ResponseEntity.ok(created);
+        return orderedProjectServices.createOrderedProject(userId,dto);
     }
 
     @GetMapping

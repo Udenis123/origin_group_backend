@@ -18,6 +18,7 @@ import com.org.group.responses.project.OrderedProjectResponse;
 import com.org.group.role.Role;
 import com.org.group.services.Admin.AdminServices;
 import com.org.group.services.Analyzer.AnalyzerServices;
+import com.org.group.services.CommunityProjectService;
 import com.org.group.services.OrderedProject.OrderedProjectServices;
 import com.org.group.services.emailAndJwt.JwtService;
 import com.org.group.services.UserService;
@@ -44,14 +45,16 @@ public class AdminController {
     private final UserService userService;
     private final OrderedProjectServices orderedProjectServices;
     private final AnalyzerServices analyzerServices;
+    private final CommunityProjectService communityProjectService;
     
     @Autowired
-    public AdminController(JwtService jwtService, AdminServices adminServices, UserService userService, OrderedProjectServices orderedProjectServices, AnalyzerServices analyzerServices) {
+    public AdminController(JwtService jwtService, AdminServices adminServices, UserService userService, OrderedProjectServices orderedProjectServices, AnalyzerServices analyzerServices, CommunityProjectService communityProjectService) {
         this.jwtService = jwtService;
         this.adminServices = adminServices;
         this.userService = userService;
         this.orderedProjectServices = orderedProjectServices;
         this.analyzerServices = analyzerServices;
+        this.communityProjectService = communityProjectService;
     }
 
 
@@ -60,6 +63,26 @@ public class AdminController {
         adminServices.registerAnalyzer(analyzerDto);
        return ResponseEntity.accepted().build();
     }
+
+    @Operation(
+            summary = "Update analyzer information",
+            description = "Admin updates analyzer personal information and credentials by analyzer ID. All fields are optional - only provided fields will be updated."
+    )
+    @PutMapping("/update/analyzer/{analyzerId}")
+    private ResponseEntity<?> updateAnalyzer(@PathVariable UUID analyzerId, @Valid @RequestBody AnalyzerDto analyzerDto){
+        try {
+            adminServices.updateAnalyzer(analyzerId, analyzerDto);
+            return ResponseEntity.ok("Analyzer updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+//    @PostMapping("/update/analyzer")
+//    private ResponseEntity<?> RegisterAnalyzer( @pathPa @Valid @RequestBody AnalyzerDto analyzerDto){
+//        adminServices.registerAnalyzer(analyzerDto);
+//        return ResponseEntity.accepted().build();
+//    }
 
 
     @Operation(
@@ -283,10 +306,50 @@ public class AdminController {
         }
     }
 
+    @Operation(
+            summary = "Update client national ID",
+            description = "Admin updates only the national ID of a specific client"
+    )
+    @PutMapping("/update/client/nationalId")
+    public ResponseEntity<?> updateClientNationalId(@RequestParam("clientId") UUID clientId, @RequestParam("nationalId") String nationalId) {
+        try {
+            userService.updateClientNationalId(clientId, nationalId);
+            return ResponseEntity.ok("Client national ID updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
+    // Community Project Management
 
+    @Operation(
+            summary = "Approve community project",
+            description = "Admin approves a community project, changing status from PENDING to APPROVED"
+    )
+    @PostMapping("/community-project/approve")
+    public ResponseEntity<?> approveCommunityProject(@RequestParam("projectId") UUID projectId) {
+        try {
+            var approvedProject = communityProjectService.approveProject(projectId);
+            return ResponseEntity.ok(approvedProject);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
-
-
+    @Operation(
+            summary = "Cancel/Reject community project",
+            description = "Admin cancels/rejects a community project with a reason, changing status to DECLINED"
+    )
+    @PostMapping("/community-project/cancel")
+    public ResponseEntity<?> cancelCommunityProject(
+            @RequestParam("projectId") UUID projectId,
+            @RequestParam("reason") String reason) {
+        try {
+            var cancelledProject = communityProjectService.cancelProject(projectId, reason);
+            return ResponseEntity.ok(cancelledProject);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }

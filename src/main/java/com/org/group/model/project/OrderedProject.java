@@ -19,8 +19,8 @@ import java.util.UUID;
 @Entity
 public class OrderedProject {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "project_id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "project_id", updatable = false, nullable = false)
     private UUID projectId;
 
     private String clientName;

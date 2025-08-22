@@ -9,8 +9,12 @@ import com.org.group.responses.project.OrderedProjectResponse;
 import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.UploadFileServices.FileStorageService;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
+import com.org.group.services.emailAndJwt.PlanFilterServices;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +32,16 @@ public class OrderedProjectServices {
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
     private final CloudinaryService cloudinaryService;
+    private final PlanFilterServices planFilterServices;
 
-    public OrderedProjectResponse createOrderedProject(UUID userId,OrderedProjectDto dto) throws IOException {
+    public ResponseEntity<String> createOrderedProject(UUID userId, OrderedProjectDto dto) throws IOException {
+        Users user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("User not found"));
+        String plan = planFilterServices.getPlanFiltered(user);
+        if (plan.equals("FREE") || plan.equals("BASIC")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to Order project. Upgrade your plan.");
+        }
+
+
         OrderedProject project = new OrderedProject(); 
         // Map fields from dto to entity
         project.setClientName(dto.getClientName());
@@ -52,7 +64,6 @@ public class OrderedProjectServices {
         project.setBusinessIdea(dto.getBusinessIdea());
         project.setStatus(AnalyticStatus.PENDING);
         // Set user
-        Users user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User Not Found"));
         project.setUser(user);
         // Handle file upload
         MultipartFile file1 = dto.getBusinessIdeaDocument();
@@ -76,7 +87,7 @@ public class OrderedProjectServices {
             throw new IOException("Failed to upload business plan document", e);
         }
         OrderedProject saved = orderedProjectRepository.save(project);
-        return toDto(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved.toString());
     }
 
     public List<OrderedProjectResponse> getAllOrderedProjects() {

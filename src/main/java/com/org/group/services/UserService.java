@@ -426,6 +426,17 @@ public class UserService {
                 "</html>";
     }
 
+    public void updateClientNationalId(UUID clientId, String nationalId) {
+        Users user = userRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client with id " + clientId + " not found"));
+        
+        if (nationalId == null || nationalId.trim().isEmpty()) {
+            throw new RuntimeException("National ID cannot be null or empty");
+        }
+        
+        user.setNationalId(nationalId.trim());
+        userRepository.save(user);
+    }
 
 }
 

@@ -1,6 +1,7 @@
 package com.org.group.model;
 
 import com.org.group.model.project.Bookmark;
+import com.org.group.model.project.CommunityProject;
 import com.org.group.model.project.LaunchProject;
 import com.org.group.role.Role;
 import jakarta.persistence.*;
@@ -28,8 +29,8 @@ import java.util.UUID;
 public class Users implements UserDetails {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     @NotBlank(message = "specify your name")
@@ -97,6 +98,9 @@ public class Users implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Payment> payments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CommunityProject> communityProjects;
 
     @OneToOne(mappedBy = "users")
     private UserRatting userRatting;

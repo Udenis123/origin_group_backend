@@ -32,8 +32,8 @@ public class LaunchProject {
 
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "project_id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "project_id", updatable = false, nullable = false)
     private UUID projectId;
     @Column(nullable = false)
     private String clientName;

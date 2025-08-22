@@ -56,16 +56,7 @@ public class UserProjectController {
             }
             String highestPriorityPlan = planFilterServices.getPlanFiltered(user);
 
-            // Get the status of the highest priority subscription
-            String status = user.getSubscriptions().stream()
-                    .filter(sub -> sub.getPlan().toString().equals(highestPriorityPlan))
-                    .findFirst()
-                    .map(sub -> sub.getStatus().toString())
-                    .orElse("EXPIRED");
-
-            if (user == null) {
-                throw new RuntimeException("User not found");
-            } else if (highestPriorityPlan.equals("FREE")) {
+            if (highestPriorityPlan.equals("FREE")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to Launch project. Upgrade your plan.");
             }
 

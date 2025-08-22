@@ -60,6 +60,44 @@ public class AdminServices {
                 .build();
         analyzerRepository.save(analyzer);
     }
+
+    public void updateAnalyzer(UUID analyzerId, AnalyzerDto analyzerDto) {
+        // Find existing analyzer by ID
+        Analyzer existingAnalyzer = analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+
+        // Update fields only if provided
+        if (analyzerDto.getName() != null && !analyzerDto.getName().trim().isEmpty()) {
+            existingAnalyzer.setName(analyzerDto.getName());
+        }
+        
+        if (analyzerDto.getGender() != null && !analyzerDto.getGender().trim().isEmpty()) {
+            existingAnalyzer.setGender(analyzerDto.getGender());
+        }
+        
+        if (analyzerDto.getPhone() != null && !analyzerDto.getPhone().trim().isEmpty()) {
+            existingAnalyzer.setPhone(analyzerDto.getPhone());
+        }
+        
+        if (analyzerDto.getExpertise() != null && !analyzerDto.getExpertise().trim().isEmpty()) {
+            existingAnalyzer.setExpertise(analyzerDto.getExpertise());
+        }
+        
+        if (analyzerDto.getNationalId() != null && !analyzerDto.getNationalId().trim().isEmpty()) {
+            existingAnalyzer.setNationalId(analyzerDto.getNationalId());
+        }
+        
+        if (analyzerDto.getNationality() != null && !analyzerDto.getNationality().trim().isEmpty()) {
+            existingAnalyzer.setNationality(analyzerDto.getNationality());
+        }
+
+        // Update password only if provided
+        if (analyzerDto.getPassword() != null && !analyzerDto.getPassword().trim().isEmpty()) {
+            existingAnalyzer.setPassword(passwordEncoder.encode(analyzerDto.getPassword()));
+        }
+
+        analyzerRepository.save(existingAnalyzer);
+    }
     public String enableOrDisableAnalyzer(UUID analyzerId) {
         Analyzer analyzer = analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));

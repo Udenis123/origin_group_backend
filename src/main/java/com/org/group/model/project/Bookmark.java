@@ -16,8 +16,8 @@ import java.util.UUID;
 public class Bookmark {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "bookmark_id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "bookmark_id", updatable = false, nullable = false)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
