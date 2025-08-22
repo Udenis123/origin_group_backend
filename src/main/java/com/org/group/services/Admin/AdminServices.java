@@ -228,7 +228,7 @@ public class AdminServices {
        }
 
         List<LaunchedProjectAnalyticsResponse> pendingProjects = projects.stream()
-                .filter(project -> "PENDING".equalsIgnoreCase(project.getStatus().toString()) && project.getAnalyticProject().isAnalyticsEnabled()) // adjust the value based on your enum or constant
+                .filter(project -> "PENDING".equalsIgnoreCase(project.getStatus().toString()) && project.getAnalyticProject() != null && project.getAnalyticProject().isAnalyticsEnabled()) // adjust the value based on your enum or constant
                 .map(project -> LaunchedProjectAnalyticsResponse.builder()
                         .balanceSheetUrl(project.getBalanceSheetUrl())
                         .projectId(project.getProjectId())
