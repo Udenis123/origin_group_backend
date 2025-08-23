@@ -22,7 +22,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/community/project")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class CommunityProjectController {
 
     private final CommunityProjectService communityProjectService;
@@ -30,7 +29,7 @@ public class CommunityProjectController {
 
     @Operation(summary = "Create a new community project", description = "Allows users to submit a new community project with photo upload")
      @PostMapping(consumes = "multipart/form-data")
-     public ResponseEntity<CommunityProject> createProject(
+     public ResponseEntity<?> createProject(
              @RequestParam("userId") UUID userId,
              @RequestPart("project") CommunityDto project,
              @RequestPart("projectPhoto") MultipartFile projectPhoto) throws IOException {
@@ -38,8 +37,8 @@ public class CommunityProjectController {
           if (PhotoUrl == null) {
               return  ResponseEntity.badRequest().build();
           }
-         CommunityProject savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
-         return ResponseEntity.ok(savedProject);
+         String savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
+         return ResponseEntity.ok(ResponseEntity.status(HttpStatus.CREATED).body(savedProject));
      }
 
     @Operation(summary = "Get project by ID", description = "Retrieves detailed information about a specific community project")

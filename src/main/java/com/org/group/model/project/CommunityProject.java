@@ -44,6 +44,7 @@ public class CommunityProject {
     private String location;
     @Column(nullable = false)
     private String description;
+
     private AnalyticStatus status;
     private String reason;
     

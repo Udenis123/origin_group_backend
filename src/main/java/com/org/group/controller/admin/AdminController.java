@@ -5,6 +5,7 @@ import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.OrderedProject.ProjectDeclineDto;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.dto.userAuth.ProfileUpdateDto;
@@ -69,7 +70,7 @@ public class AdminController {
             description = "Admin updates analyzer personal information and credentials by analyzer ID. All fields are optional - only provided fields will be updated."
     )
     @PutMapping("/update/analyzer/{analyzerId}")
-    private ResponseEntity<?> updateAnalyzer(@PathVariable UUID analyzerId, @Valid @RequestBody AnalyzerDto analyzerDto){
+    private ResponseEntity<?> updateAnalyzer(@PathVariable UUID analyzerId, @Valid @RequestBody UpdateAnalyzerDto analyzerDto){
         try {
             adminServices.updateAnalyzer(analyzerId, analyzerDto);
             return ResponseEntity.ok("Analyzer updated successfully");

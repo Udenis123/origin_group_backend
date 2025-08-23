@@ -3,6 +3,7 @@ package com.org.group.services.Admin;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
+import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
@@ -72,7 +73,7 @@ public class AdminServices {
         }
     }
 
-    public void updateAnalyzer(UUID analyzerId, AnalyzerDto analyzerDto) {
+    public void updateAnalyzer(UUID analyzerId, UpdateAnalyzerDto analyzerDto) {
         // Find existing analyzer by ID
         Analyzer existingAnalyzer = analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));

@@ -27,7 +27,7 @@ public class CommunityProjectService {
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
 
-    public CommunityProject createProject(UUID userId, CommunityDto project, String photoUrl) throws IOException {
+    public String createProject(UUID userId, CommunityDto project, String photoUrl) throws IOException {
         Users users = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
 
@@ -46,8 +46,9 @@ public class CommunityProjectService {
                 .location(project.getLocation())
                 .team(project.getTeam())
                 .build();
+        communityProjectRepository.save(communityProject);
 
-        return communityProjectRepository.save(communityProject);
+        return "Created";
     }
 
 
