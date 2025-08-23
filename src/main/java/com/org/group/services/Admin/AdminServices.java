@@ -489,7 +489,7 @@ public class AdminServices {
                 "      <p><strong>Password:</strong> " + plainPassword + "</p>" +
                 "    </div>" +
                 "    <p>Please use these credentials to log in to your account and start analyzing projects.</p>" +
-                "    <a href='http://localhost:4201/login' class='login-button'>Login to Your Account</a>" +
+                "    <a href='https://orgin-group-analyzer.vercel.app/' class='login-button'>Login to Your Account</a>" +
                 "    <p><small>If the button doesn't work, copy and paste this link: <a href='http://localhost:4201/login'>http://localhost:4201/login</a></small></p>" +
                 "  </div>" +
                 "  <div class='footer'>" +

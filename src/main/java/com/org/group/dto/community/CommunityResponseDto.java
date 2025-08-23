@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +31,8 @@ public class CommunityResponseDto {
     private String description;
     private AnalyticStatus status;
     private String reason;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedOn;
     private List<TeamMember> team;
     private UUID userId; // Only include the user ID, not the full user object
 }

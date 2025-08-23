@@ -7,7 +7,11 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import com.org.group.model.Users;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class CommunityProject {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -47,6 +52,15 @@ public class CommunityProject {
 
     private AnalyticStatus status;
     private String reason;
+    
+    // Audit fields
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    @LastModifiedDate
+    @Column(name = "updated_on", nullable = false)
+    private LocalDateTime updatedOn;
     
     // Many-to-One relationship with Users
     @ManyToOne(fetch = FetchType.LAZY)

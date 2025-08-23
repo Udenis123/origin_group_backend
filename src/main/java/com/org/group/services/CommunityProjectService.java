@@ -69,6 +69,8 @@ public class CommunityProjectService {
                 .description(project.getDescription())
                 .status(project.getStatus())
                 .reason(project.getReason())
+                .createdAt(project.getCreatedAt())
+                .updatedOn(project.getUpdatedOn())
                 .team(project.getTeam())
                 .userId(project.getUser() != null ? project.getUser().getId() : null)
                 .build();
