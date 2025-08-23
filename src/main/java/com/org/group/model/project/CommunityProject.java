@@ -55,11 +55,11 @@ public class CommunityProject {
     
     // Audit fields
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     @LastModifiedDate
-    @Column(name = "updated_on", nullable = false)
+    @Column(name = "updated_on")
     private LocalDateTime updatedOn;
     
     // Many-to-One relationship with Users
