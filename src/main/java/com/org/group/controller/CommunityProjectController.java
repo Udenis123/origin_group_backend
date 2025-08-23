@@ -2,6 +2,7 @@ package com.org.group.controller;
 
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.community.CommunityDto;
+import com.org.group.dto.community.CommunityResponseDto;
 import com.org.group.model.project.CommunityProject;
 import com.org.group.model.project.TeamMember;
 import com.org.group.services.CommunityProjectService;
@@ -28,8 +29,8 @@ public class CommunityProjectController {
     private final CloudinaryService cloudinaryService;
 
     @Operation(summary = "Create a new community project", description = "Allows users to submit a new community project with photo upload")
-     @PostMapping(consumes = "multipart/form-data")
-     public ResponseEntity<?> createProject(
+    @PostMapping(consumes = "multipart/form-data")
+     public ResponseEntity<CommunityResponseDto> createProject(
              @RequestParam("userId") UUID userId,
              @RequestPart("project") CommunityDto project,
              @RequestPart("projectPhoto") MultipartFile projectPhoto) throws IOException {
@@ -37,28 +38,28 @@ public class CommunityProjectController {
           if (PhotoUrl == null) {
               return  ResponseEntity.badRequest().build();
           }
-         String savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
-         return ResponseEntity.ok(ResponseEntity.status(HttpStatus.CREATED).body(savedProject));
+         CommunityResponseDto savedProject = communityProjectService.createProject(userId ,project,PhotoUrl);
+         return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
      }
 
     @Operation(summary = "Get project by ID", description = "Retrieves detailed information about a specific community project")
     @GetMapping("/{id}")
-    public ResponseEntity<CommunityProject> getProject(@PathVariable UUID id) {
-        CommunityProject project = communityProjectService.getProjectById(id);
+    public ResponseEntity<CommunityResponseDto> getProject(@PathVariable UUID id) {
+        CommunityResponseDto project = communityProjectService.getProjectById(id);
         return ResponseEntity.ok(project);
     }
 
     @Operation(summary = "Get all projects", description = "Retrieves a list of all community projects in the system")
     @GetMapping
-    public ResponseEntity<List<CommunityProject>> getAllProjects() {
-        List<CommunityProject> projects = communityProjectService.getAllProjects();
+    public ResponseEntity<List<CommunityResponseDto>> getAllProjects() {
+        List<CommunityResponseDto> projects = communityProjectService.getAllProjects();
         return ResponseEntity.ok(projects);
     }
 
     @Operation(summary = "Update project", description = "Allows project creators to modify their project information")
     @PutMapping("/{id}")
-    public ResponseEntity<CommunityProject> updateProject(@PathVariable UUID id, @RequestBody CommunityProject projectDetails) {
-        CommunityProject updatedProject = communityProjectService.updateProject(id, projectDetails);
+    public ResponseEntity<CommunityResponseDto> updateProject(@PathVariable UUID id, @RequestBody CommunityProject projectDetails) {
+        CommunityResponseDto updatedProject = communityProjectService.updateProject(id, projectDetails);
         return ResponseEntity.ok(updatedProject);
     }
 
@@ -71,16 +72,16 @@ public class CommunityProjectController {
 
     @Operation(summary = "Add team member", description = "Allows project creators to add new team members to their project")
     @PostMapping("/{id}/team-members")
-    public ResponseEntity<CommunityProject> addTeamMember(@PathVariable UUID id, @RequestBody TeamMember teamMember) {
-        CommunityProject updatedProject = communityProjectService.addTeamMember(id, teamMember);
+    public ResponseEntity<CommunityResponseDto> addTeamMember(@PathVariable UUID id, @RequestBody TeamMember teamMember) {
+        CommunityResponseDto updatedProject = communityProjectService.addTeamMember(id, teamMember);
         return ResponseEntity.ok(updatedProject);
     }
 
     @Operation(summary = "Get projects by user", description = "Retrieves all projects created by a specific user")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<CommunityProject>> getProjectsByUser(@PathVariable UUID userId) {
+    public ResponseEntity<List<CommunityResponseDto>> getProjectsByUser(@PathVariable UUID userId) {
         try {
-            List<CommunityProject> projects = communityProjectService.getProjectsByUser(userId);
+            List<CommunityResponseDto> projects = communityProjectService.getProjectsByUser(userId);
             return ResponseEntity.ok(projects);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -89,19 +90,19 @@ public class CommunityProjectController {
 
     @Operation(summary = "Get pending projects", description = "Retrieves all community projects with PENDING status")
     @GetMapping("/pending")
-    public ResponseEntity<List<CommunityProject>> getPendingProjects() {
-        List<CommunityProject> pendingProjects = communityProjectService.getProjectsByStatus(AnalyticStatus.PENDING);
+    public ResponseEntity<List<CommunityResponseDto>> getPendingProjects() {
+        List<CommunityResponseDto> pendingProjects = communityProjectService.getProjectsByStatus(AnalyticStatus.PENDING);
         return ResponseEntity.ok(pendingProjects);
     }
 
     @Operation(summary = "Update team member", description = "Updates a specific team member at the given index in a project")
     @PutMapping("/{id}/team-members/{index}")
-    public ResponseEntity<CommunityProject> updateTeamMember(
+    public ResponseEntity<CommunityResponseDto> updateTeamMember(
             @PathVariable UUID id, 
             @PathVariable int index, 
             @RequestBody TeamMember teamMember) {
         try {
-            CommunityProject updatedProject = communityProjectService.updateTeamMember(id, index, teamMember);
+            CommunityResponseDto updatedProject = communityProjectService.updateTeamMember(id, index, teamMember);
             return ResponseEntity.ok(updatedProject);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -112,11 +113,11 @@ public class CommunityProjectController {
 
     @Operation(summary = "Delete team member", description = "Deletes a specific team member at the given index from a project")
     @DeleteMapping("/{id}/team-members/{index}")
-    public ResponseEntity<CommunityProject> deleteTeamMember(
+    public ResponseEntity<CommunityResponseDto> deleteTeamMember(
             @PathVariable UUID id, 
             @PathVariable int index) {
         try {
-            CommunityProject updatedProject = communityProjectService.deleteTeamMember(id, index);
+            CommunityResponseDto updatedProject = communityProjectService.deleteTeamMember(id, index);
             return ResponseEntity.ok(updatedProject);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
