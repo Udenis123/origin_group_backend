@@ -3,6 +3,7 @@ package com.org.group.controller;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.community.CommunityDto;
 import com.org.group.dto.community.CommunityResponseDto;
+import com.org.group.dto.community.CommunityUpdateDto;
 import com.org.group.model.project.CommunityProject;
 import com.org.group.model.project.TeamMember;
 import com.org.group.services.CommunityProjectService;
@@ -58,9 +59,22 @@ public class CommunityProjectController {
 
     @Operation(summary = "Update project", description = "Allows project creators to modify their project information")
     @PutMapping("/{id}")
-    public ResponseEntity<CommunityResponseDto> updateProject(@PathVariable UUID id, @RequestBody CommunityProject projectDetails) {
+    public ResponseEntity<CommunityResponseDto> updateProject(@PathVariable UUID id, @RequestBody CommunityUpdateDto projectDetails) {
         CommunityResponseDto updatedProject = communityProjectService.updateProject(id, projectDetails);
         return ResponseEntity.ok(updatedProject);
+    }
+
+    @Operation(summary = "Update project photo", description = "Allows project creators to update their project photo")
+    @PutMapping(value = "/{id}/photo", consumes = "multipart/form-data")
+    public ResponseEntity<CommunityResponseDto> updateProjectPhoto(
+            @PathVariable UUID id,
+            @RequestPart("photo") MultipartFile photo) throws IOException {
+        try {
+            CommunityResponseDto updatedProject = communityProjectService.updateProjectPhoto(id, photo);
+            return ResponseEntity.ok(updatedProject);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Operation(summary = "Delete project", description = "Allows project creators to remove their project from the system")
@@ -122,6 +136,18 @@ public class CommunityProjectController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+
+    @Operation(summary = "Set project to PENDING_QUERY status", description = "User action to resubmit project after query")
+    @PutMapping("/{id}/resubmit")
+    public ResponseEntity<CommunityResponseDto> setProjectToPendingQuery(@PathVariable UUID id) {
+        try {
+            CommunityResponseDto updatedProject = communityProjectService.setProjectToPendingQuery(id);
+            return ResponseEntity.ok(updatedProject);
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }

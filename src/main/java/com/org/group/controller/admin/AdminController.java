@@ -7,6 +7,7 @@ import com.org.group.dto.admin.AnalyzerDto;
 import com.org.group.dto.admin.AnalyzerInfoDto;
 import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
+import com.org.group.dto.community.CommunityResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.dto.userAuth.ProfileUpdateDto;
 import com.org.group.dto.userResponse.UserRatingResponse;
@@ -337,6 +338,19 @@ public class AdminController {
             return ResponseEntity.ok(cancelledProject);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "Set project to QUERY status", description = "Admin action to set project status to QUERY with reason")
+    @PutMapping("/{id}/query")
+    public ResponseEntity<CommunityResponseDto> setProjectToQuery(
+            @PathVariable UUID id,
+            @RequestParam String reason) {
+        try {
+            CommunityResponseDto updatedProject = communityProjectService.setProjectToQuery(id, reason);
+            return ResponseEntity.ok(updatedProject);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 

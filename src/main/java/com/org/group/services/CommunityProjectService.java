@@ -3,12 +3,14 @@ package com.org.group.services;
 import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.dto.community.CommunityDto;
 import com.org.group.dto.community.CommunityResponseDto;
+import com.org.group.dto.community.CommunityUpdateDto;
 import com.org.group.model.Users;
 import com.org.group.model.project.CommunityProject;
 import com.org.group.model.project.TeamMember;
 import com.org.group.repository.UserRepository;
 import com.org.group.repository.project.CommunityProjectRepository;
 import com.org.group.services.UploadFileServices.CloudinaryService;
+import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +30,16 @@ public class CommunityProjectService {
     private final CommunityProjectRepository communityProjectRepository;
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final PlanFilterServices planFilterServices;
 
     public CommunityResponseDto createProject(UUID userId, CommunityDto project, String photoUrl) throws IOException {
         Users users = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        String userSubscription = planFilterServices.getPlanFiltered(users);
+        if(userSubscription.equals("BASIC") || userSubscription.equals("FREE")) {
+            throw new RuntimeException("Please upgrade your Subscription");
+        }
+
 
 
         CommunityProject communityProject = CommunityProject.builder()
@@ -89,9 +98,12 @@ public class CommunityProjectService {
                 .collect(Collectors.toList());
     }
 
-    public CommunityResponseDto updateProject(UUID id, CommunityProject projectDetails) {
+    public CommunityResponseDto updateProject(UUID id, CommunityUpdateDto projectDetails) {
         CommunityProject project = communityProjectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, query, or pending_query");
+        }
         
         // Update fields
         project.setFullName(projectDetails.getFullName());
@@ -99,14 +111,38 @@ public class CommunityProjectService {
         project.setEmail(projectDetails.getEmail());
         project.setPhone(projectDetails.getPhone());
         project.setLinkedIn(projectDetails.getLinkedIn());
-        project.setProjectPhoto(projectDetails.getProjectPhoto());
         project.setProjectName(projectDetails.getProjectName());
         project.setCategory(projectDetails.getCategory());
         project.setLocation(projectDetails.getLocation());
         project.setDescription(projectDetails.getDescription());
-        project.setTeam(projectDetails.getTeam()); // This will be stored as JSON
         
         CommunityProject updatedProject = communityProjectRepository.save(project);
+        return convertToResponseDto(updatedProject);
+    }
+
+    public CommunityResponseDto updateProjectPhoto(UUID projectId, MultipartFile newPhoto) throws IOException {
+        CommunityProject project = communityProjectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, query, or pending_query");
+        }
+
+        // Delete existing photo if it exists
+        if (project.getProjectPhoto() != null && !project.getProjectPhoto().isEmpty()) {
+            cloudinaryService.deleteFile(project.getProjectPhoto());
+        }
+
+        // Upload new photo
+        String newPhotoUrl = cloudinaryService.uploadProjectPhoto(newPhoto);
+        if (newPhotoUrl == null) {
+            throw new RuntimeException("Failed to upload new photo");
+        }
+
+        // Update project with new photo URL
+        project.setProjectPhoto(newPhotoUrl);
+        CommunityProject updatedProject = communityProjectRepository.save(project);
+        
         return convertToResponseDto(updatedProject);
     }
 
@@ -116,8 +152,12 @@ public class CommunityProjectService {
 
     // Example method to add a team member to an existing project
     public CommunityResponseDto addTeamMember(UUID projectId, TeamMember teamMember) {
+
         CommunityProject project = communityProjectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, query, or pending_query");
+        }
         List<TeamMember> team = project.getTeam();
         team.add(teamMember);
         project.setTeam(team);
@@ -145,8 +185,13 @@ public class CommunityProjectService {
 
     // Update team member
     public CommunityResponseDto updateTeamMember(UUID projectId, int teamMemberIndex, TeamMember updatedMember) {
+
         CommunityProject project = communityProjectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, query, or pending_query");
+        }
         List<TeamMember> team = project.getTeam();
         
         if (teamMemberIndex >= 0 && teamMemberIndex < team.size()) {
@@ -163,6 +208,9 @@ public class CommunityProjectService {
     public CommunityResponseDto deleteTeamMember(UUID projectId, int teamMemberIndex) {
         CommunityProject project = communityProjectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, query, or pending_query");
+        }
         List<TeamMember> team = project.getTeam();
         
         if (teamMemberIndex >= 0 && teamMemberIndex < team.size()) {
@@ -190,6 +238,26 @@ public class CommunityProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
         project.setStatus(AnalyticStatus.DECLINED);
         project.setReason(reason);
+        CommunityProject savedProject = communityProjectRepository.save(project);
+        return convertToResponseDto(savedProject);
+    }
+
+    // Set project to QUERY status (admin action)
+    public CommunityResponseDto setProjectToQuery(UUID projectId, String reason) {
+        CommunityProject project = communityProjectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setStatus(AnalyticStatus.QUERY);
+        project.setReason(reason);
+        CommunityProject savedProject = communityProjectRepository.save(project);
+        return convertToResponseDto(savedProject);
+    }
+
+    // Set project to PENDING_QUERY status (when user resubmits after query)
+    public CommunityResponseDto setProjectToPendingQuery(UUID projectId) {
+        CommunityProject project = communityProjectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setStatus(AnalyticStatus.PENDING_QUERY);
+        project.setReason(null); // Clear the reason when resubmitting
         CommunityProject savedProject = communityProjectRepository.save(project);
         return convertToResponseDto(savedProject);
     }
