@@ -16,4 +16,12 @@ public class TeamMember {
     
     @JsonProperty("number")
     private int number;
+
+    @JsonProperty("wageType")
+    private String wageType;
+
+    @JsonProperty("wage")
+    private String wage;
+
+
 }

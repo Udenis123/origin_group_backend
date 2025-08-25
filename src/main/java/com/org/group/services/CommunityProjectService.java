@@ -40,8 +40,6 @@ public class CommunityProjectService {
             throw new RuntimeException("Please upgrade your Subscription");
         }
 
-
-
         CommunityProject communityProject = CommunityProject.builder()
                 .email(project.getEmail())
                 .fullName(project.getFullName())
@@ -254,8 +252,12 @@ public class CommunityProjectService {
 
     // Set project to PENDING_QUERY status (when user resubmits after query)
     public CommunityResponseDto setProjectToPendingQuery(UUID projectId) {
+
         CommunityProject project = communityProjectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+        if (project.getStatus() == AnalyticStatus.APPROVED || project.getStatus() == AnalyticStatus.PRODUCTION || project.getStatus() == AnalyticStatus.DECLINED || project.getStatus() == AnalyticStatus.COMPLETED) {
+            throw new RuntimeException("project must update while is pending, queried");
+        }
         project.setStatus(AnalyticStatus.PENDING_QUERY);
         project.setReason(null); // Clear the reason when resubmitting
         CommunityProject savedProject = communityProjectRepository.save(project);
