@@ -95,6 +95,13 @@ public class CommunityProjectService {
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
+    public List<CommunityResponseDto> getAllProjectsApproved() {
+        return communityProjectRepository.findAll()
+                .stream()
+                .filter(project -> project.getStatus().equals(AnalyticStatus.APPROVED))
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
 
     public CommunityResponseDto updateProject(UUID id, CommunityUpdateDto projectDetails) {
         CommunityProject project = communityProjectRepository.findById(id)

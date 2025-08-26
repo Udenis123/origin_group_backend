@@ -1,5 +1,6 @@
 package com.org.group.controller;
 
+import com.org.group.dto.community.CommunityResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.responses.RegisterResponse;
 import com.org.group.dto.userAuth.RegisterUserDto;
@@ -9,6 +10,7 @@ import com.org.group.responses.LoginResponse;
 import com.org.group.responses.project.HomeProjectResponse;
 import com.org.group.services.Admin.AdminServices;
 import com.org.group.services.AuthenticationServices;
+import com.org.group.services.CommunityProjectService;
 import com.org.group.services.LaunchProject.LaunchProjectServices;
 
 import com.org.group.services.emailAndJwt.JwtService;
@@ -41,15 +43,17 @@ public class AuthenticationController {
     private final LaunchProjectServices launchProjectService;
     private final AdminServices adminServices;
     private final UserService userService;
+    private final CommunityProjectService communityProjectService;
 
     @Autowired
-    public AuthenticationController(AuthenticationServices authenticationService, JwtService jwtService, LaunchProjectServices launchProjectService, AdminServices adminServices, UserService userService) {
+    public AuthenticationController(AuthenticationServices authenticationService, JwtService jwtService, LaunchProjectServices launchProjectService, AdminServices adminServices, UserService userService, CommunityProjectService communityProjectService) {
         this.authenticationService = authenticationService;
         this.jwtService = jwtService;
 
         this.launchProjectService = launchProjectService;
         this.adminServices = adminServices;
         this.userService = userService;
+        this.communityProjectService = communityProjectService;
     }
 
     @Operation(
@@ -197,6 +201,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Get all community projects", description = "Retrieves a list of all approved community projects in the system")
+    @GetMapping
+    public ResponseEntity<List<CommunityResponseDto>> getAllProjects() {
+        List<CommunityResponseDto> projects = communityProjectService.getAllProjectsApproved();
+        return ResponseEntity.ok(projects);
+    }
 
 
 
