@@ -15,22 +15,6 @@ public class RegisterUserDto {
     @Size(min = 10, max = 50, message = "Name must be between 10 and 50 characters")
     private String name;
 
-    @NotBlank(message = "National ID is required")
-    @Size(min = 16, max = 16, message = "National ID must be exactly 16 digits")
-    @Pattern(regexp = "^[0-9]{16}$", message = "National ID must contain only numbers")
-    private String nationalId;
-
-    @NotBlank(message = "Gender is required")
-    private String gender;
-
-    @NotBlank(message = "Nationality is required")
-    @Size(min = 5, max = 50, message = "Nationality must be between 2 and 50 characters")
-    private String nationality;
-
-    @NotBlank(message = "Profession is required")
-    @Size(min = 5, max = 50, message = "Profession must be between 5 and 50 characters")
-    private String professional;
-
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")
     private String email;

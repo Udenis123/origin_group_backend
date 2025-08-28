@@ -65,7 +65,7 @@ public class AuthenticationController {
         @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PostMapping("/signup")
-    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterUserDto registerUserDto) {
         Users registeredUser = authenticationService.signup(registerUserDto);
         RegisterResponse registerResponse = RegisterResponse.builder().id(registeredUser.getId())
                 .email(registeredUser.getEmail())

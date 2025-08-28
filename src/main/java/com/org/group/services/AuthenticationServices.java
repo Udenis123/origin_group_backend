@@ -36,7 +36,6 @@ public class AuthenticationServices {
 
     public Users signup(RegisterUserDto input) {
         Optional<Users> existingUserByEmail = userRepository.findByEmail(input.getEmail());
-        Optional<Users> existingUserByNationalId = userRepository.findByNationalId(input.getNationalId());
         Optional<Users> existingUserByPhone = userRepository.findByPhone(input.getPhone());
         Optional<Analyzer> existingAnalyzerByEmail = analyzerRepository.findByEmail(input.getEmail());
 
@@ -50,10 +49,6 @@ public class AuthenticationServices {
             }
         }
 
-        if (existingUserByNationalId.isPresent()) {
-            throw new IllegalStateException("National ID is already registered.");
-        }
-
         if (existingUserByPhone.isPresent()) {
             throw new IllegalStateException("Phone number is already registered.");
         }
@@ -64,12 +59,8 @@ public class AuthenticationServices {
 
         Users newUser = Users.builder()
                 .name(input.getName())
-                .nationality(input.getNationality())
-                .nationalId(input.getNationalId())
-                .gender(input.getGender())
                 .email(input.getEmail())
                 .phone(input.getPhone())
-                .professional(input.getProfessional())
                 .password(passwordEncoder.encode(input.getPassword()))
                 .enabled(false)
                 .photoUrl("https://static.vecteezy.com/system/resources/thumbnails/010/260/479/small_2x/default-avatar-profile-icon-of-social-media-user-in-clipart-style-vector.jpg")

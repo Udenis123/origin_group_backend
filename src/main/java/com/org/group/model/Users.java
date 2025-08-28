@@ -33,25 +33,12 @@ public class Users implements UserDetails {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @NotBlank(message = "specify your name")
+    @Column(nullable = false)
     public String name;
-
-    @NotBlank(message = "specify ID")
-    @Column(unique = true, nullable = false)
     private String nationalId;
-
-    @NotBlank(message = "specify gender")
-    @Column(nullable = false)
     private String gender;
-
-    @NotBlank(message = "specify nationality")
-    @Column(nullable = false)
     private String nationality;
-
-    @NotBlank(message = "specify professional")
-    @Column(nullable = false)
     private String professional;
-
     @Column(unique = true, nullable = false)
     @Email(message = "please put valid email")
     private String email;
@@ -60,6 +47,7 @@ public class Users implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phone;
 
+    @Column(nullable = false)
     private String password;
 
     private boolean enabled;
