@@ -34,14 +34,7 @@ public class OrderedProjectServices {
     private final CloudinaryService cloudinaryService;
     private final PlanFilterServices planFilterServices;
 
-    public ResponseEntity<String> createOrderedProject(UUID userId, OrderedProjectDto dto) throws IOException {
-        Users user = userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("User not found"));
-        String plan = planFilterServices.getPlanFiltered(user);
-        if (plan.equals("FREE") || plan.equals("BASIC")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You are not authorized to Order project. Upgrade your plan.");
-        }
-
-
+    public ResponseEntity<String> createOrderedProject( OrderedProjectDto dto) throws IOException {
         OrderedProject project = new OrderedProject(); 
         // Map fields from dto to entity
         project.setClientName(dto.getClientName());
@@ -63,9 +56,6 @@ public class OrderedProjectServices {
         project.setDoYouNeedBusinessPlan(dto.getDoYouNeedBusinessPlan());
         project.setBusinessIdea(dto.getBusinessIdea());
         project.setStatus(AnalyticStatus.PENDING);
-        // Set user
-        project.setUser(user);
-        // Handle file upload
         MultipartFile file1 = dto.getBusinessIdeaDocument();
         MultipartFile file2 = dto.getBusinessPlanDocument();
         
@@ -181,7 +171,7 @@ public class OrderedProjectServices {
         dto.setStatus(project.getStatus());
         dto.setBusinessPlanDocumentUrl(project.getBusinessIdeaDocumentUrl());
         dto.setBusinessIdeaDocumentUrl(project.getBusinessPlanUrl());
-        dto.setUserId(project.getUser().getId());
+
         return dto;
     }
 
@@ -213,10 +203,10 @@ public class OrderedProjectServices {
         return true;
     }
 
-    public List<OrderedProjectResponse> getOrderedProjectsByUserId(UUID userId) {
-        List<OrderedProject> projects = orderedProjectRepository.findByUser_Id(userId);
-        return projects.stream().map(this::toDto).collect(Collectors.toList());
-    }
+//    public List<OrderedProjectResponse> getOrderedProjectsByUserId(UUID userId) {
+//        List<OrderedProject> projects = orderedProjectRepository.findByUser_Id(userId);
+//        return projects.stream().map(this::toDto).collect(Collectors.toList());
+//    }
 
     public String updateOrderedProjectStatus(UUID projectId, AnalyticStatus status, String reason) {
         OrderedProject project = orderedProjectRepository.findById(projectId)

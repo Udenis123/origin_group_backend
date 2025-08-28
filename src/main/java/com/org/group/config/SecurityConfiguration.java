@@ -42,6 +42,7 @@ public class SecurityConfiguration {
                                 "/auth/**",
                                 "/admin/login",
                                 "/admin/login/admin",
+                                "/api/ordered-projects",
                                 "/api/files/**",// Allow all /auth endpoints
                                 "/public/**",
                                 "/v3/api-docs/**",

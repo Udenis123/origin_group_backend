@@ -9,5 +9,4 @@ import java.util.UUID;
 
 @Repository
 public interface OrderedProjectRepository extends JpaRepository<OrderedProject, UUID> {
-    List<OrderedProject> findByUser_Id(UUID userId);
 }

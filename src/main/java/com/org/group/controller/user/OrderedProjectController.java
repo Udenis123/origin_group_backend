@@ -24,25 +24,18 @@ public class OrderedProjectController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> createOrderedProject(
-            @RequestParam("userId") UUID userId,
             @RequestPart("dto") OrderedProjectDto dto,
             @RequestPart(value = "businessIdeaDocument", required = false) MultipartFile businessIdeaDocument,
             @RequestPart(value="businessPlanDocument",required =false) MultipartFile businessPlanDocument
     ) throws IOException {
         dto.setBusinessIdeaDocument(businessIdeaDocument);
         dto.setBusinessPlanDocument(businessPlanDocument);
-        return orderedProjectServices.createOrderedProject(userId,dto);
+        return orderedProjectServices.createOrderedProject(dto);
     }
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<OrderedProjectResponse>> getAllOrderedProjects() {
         return ResponseEntity.ok(orderedProjectServices.getAllOrderedProjects());
-    }
-
-    @GetMapping("/user")
-    public ResponseEntity<List<OrderedProjectResponse>> getOrderedProjectsByUserId(@RequestParam("userId") UUID userId) {
-        List<OrderedProjectResponse> projects = orderedProjectServices.getOrderedProjectsByUserId(userId);
-        return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{projectId}")

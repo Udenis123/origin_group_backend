@@ -33,7 +33,6 @@ public class OrderedProject {
     private String projectType;
     private String projectDescription;
     private String targetAudience;
-    @Column(name = "project_references")
     private String references;
     private String projectLocation;
     private String SpecialityOfProject;
@@ -56,10 +55,6 @@ public class OrderedProject {
 
     private AnalyticStatus status;
 
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
 
 
 }
