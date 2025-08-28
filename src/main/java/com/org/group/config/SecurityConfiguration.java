@@ -66,7 +66,7 @@ public class SecurityConfiguration {
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://orgin-group-client.vercel.app","https://orgin-group-website.vercel.app",
                 "https://orgin-group-analyzer.vercel.app","https://orgin-group-admin.vercel.app",
-                "https://origin-admin.orinest.rw/login","https://origin.orinest.rw" , "https://origin-analyzer.orinest.rw","https://origin-client.orinest.rw",
+                "https://origin-admin.orinest.rw","https://origin.orinest.rw" , "https://origin-analyzer.orinest.rw","https://origin-client.orinest.rw",
                 "http://localhost:4200", "http://localhost:4202","http://localhost:4201","http://localhost:4203"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList(
