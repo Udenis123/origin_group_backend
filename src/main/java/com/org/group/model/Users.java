@@ -35,6 +35,7 @@ public class Users implements UserDetails {
 
     @Column(nullable = false)
     public String name;
+    @Column(nullable = true)
     private String nationalId;
     @Column(nullable = true)
     private String gender;
