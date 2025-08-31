@@ -202,7 +202,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Get all community projects", description = "Retrieves a list of all approved community projects in the system")
-    @GetMapping
+    @GetMapping("/community")
     public ResponseEntity<List<CommunityResponseDto>> getAllProjects() {
         List<CommunityResponseDto> projects = communityProjectService.getAllProjectsApproved();
         return ResponseEntity.ok(projects);
