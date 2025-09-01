@@ -11,8 +11,6 @@ import java.util.UUID;
 @Repository
 
 public interface AnalyticProjectRepository extends JpaRepository<AnalyticProject, Long> {
-
     Optional<AnalyticProject> findByLaunchProject_ProjectId(UUID projectProjectId);
-    
     List<AnalyticProject> findByAnalyzerId(UUID analyzerId);
 }
