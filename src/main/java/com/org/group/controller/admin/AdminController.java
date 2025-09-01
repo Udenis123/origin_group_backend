@@ -355,6 +355,8 @@ public class AdminController {
         }
     }
 
+    
+
     // User Validation Endpoints
 
     @Operation(
@@ -382,5 +384,6 @@ public class AdminController {
         Map<String, Object> details = adminServices.getUserExistenceDetails(email, phone, nationalId);
         return ResponseEntity.ok(details);
     }
+
 
 }
