@@ -634,6 +634,23 @@ public class AdminServices {
         emailService.sendVerificationEmail(analyzer.getEmail(), subject, htmlMessage);
     }
 
+    public void deleteAnalyzer(UUID analyzerId) {
+        // Find the analyzer by ID
+        Analyzer analyzer = analyzerRepository.findById(analyzerId)
+                .orElseThrow(() -> new EntityNotFoundException("Analyzer with ID " + analyzerId + " not found"));
+        
+        // Check if analyzer has assigned projects
+        List<AnalyticProject> assignedProjects = analyticsRepository.findByAnalyzerId(analyzerId);
+        if (!assignedProjects.isEmpty()) {
+            throw new IllegalStateException("Cannot delete analyzer with ID " + analyzerId + 
+                " because they have " + assignedProjects.size() + " assigned project(s). " +
+                "Please unassign all projects before deleting the analyzer.");
+        }
+        
+        // Delete the analyzer
+        analyzerRepository.delete(analyzer);
+    }
+
     private String createAnalyzerWelcomeEmailContent(Analyzer analyzer, String plainPassword) {
         return "<html>" +
                 "<head>" +

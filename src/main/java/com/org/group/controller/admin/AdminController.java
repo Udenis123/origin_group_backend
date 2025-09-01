@@ -241,6 +241,25 @@ public class AdminController {
     }
 
     @Operation(
+            summary = "Delete analyzer",
+            description = "Permanently delete an analyzer from the system. This action cannot be undone."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analyzer deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or analyzer not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @DeleteMapping("/analyzer/{analyzerId}")
+    public ResponseEntity<String> deleteAnalyzer(@PathVariable UUID analyzerId) {
+        try {
+            adminServices.deleteAnalyzer(analyzerId);
+            return ResponseEntity.ok("Analyzer deleted successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @Operation(
             summary = "Assign project to analyzer",
             description = "Assign a specific project to an analyzer for analysis"
     )
