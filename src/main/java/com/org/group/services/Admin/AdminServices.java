@@ -12,10 +12,12 @@ import com.org.group.model.UserSubscription;
 import com.org.group.model.Users;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
+import com.org.group.model.analyzer.Assignment;
 import com.org.group.model.project.LaunchProject;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.UserRepository;
 import com.org.group.repository.analytics.AnalyticProjectRepository;
+import com.org.group.repository.analytics.AssignmentRepository;
 import com.org.group.repository.project.LaunchProjectRepository;
 import com.org.group.responses.Users.ClientResponseDto;
 import com.org.group.responses.project.LaunchProjectResponse;
@@ -47,6 +49,7 @@ public class AdminServices {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final AnalyticProjectRepository analyticsRepository;
+    private final AssignmentRepository assignmentRepository;
     private final LaunchProjectRepository launchProjectRepository;
     private final UserRepository userRepository;
     private final PlanFilterServices planFilterServices;
@@ -639,11 +642,11 @@ public class AdminServices {
         Analyzer analyzer = analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with ID " + analyzerId + " not found"));
         
-        // Check if analyzer has assigned projects
-        List<AnalyticProject> assignedProjects = analyticsRepository.findByAnalyzerId(analyzerId);
-        if (!assignedProjects.isEmpty()) {
+        // Check if analyzer has assigned projects using Assignment entity
+        List<Assignment> assignments = assignmentRepository.findByAnalyzer_Id(analyzerId);
+        if (!assignments.isEmpty()) {
             throw new IllegalStateException("Cannot delete analyzer with ID " + analyzerId + 
-                " because they have " + assignedProjects.size() + " assigned project(s). " +
+                " because they have " + assignments.size() + " assigned project(s). " +
                 "Please unassign all projects before deleting the analyzer.");
         }
         

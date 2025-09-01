@@ -22,4 +22,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     @Query("SELECT a FROM Assignment a WHERE a.project.projectId = :projectId")
     List<Assignment> findAssignmentsByProjectId(@Param("projectId") UUID projectId);
+    
+    List<Assignment> findByAnalyzer_Id(UUID analyzerId);
 }
