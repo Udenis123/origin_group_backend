@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: origin-group-app
+    container_name: origin-group-api
     image: udenis123/origin-group:latest
     build: ./
     ports:
@@ -35,19 +35,19 @@ services:
     networks:
       - mynetwork
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4
-    restart: always
-    ports:
-      - "5050:80"  # you can use any port on the host (e.g., 5050)
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    depends_on:
-      - db
-    networks:
-      - mynetwork
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    container_name: pgadmin4
+#    restart: always
+#    ports:
+#      - "5050:80"  # you can use any port on the host (e.g., 5050)
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@example.com
+#      PGADMIN_DEFAULT_PASSWORD: admin123
+#    depends_on:
+#      - db
+#    networks:
+#      - mynetwork
 
 volumes:
   postgres_data:

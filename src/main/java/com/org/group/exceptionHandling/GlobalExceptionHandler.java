@@ -1,6 +1,7 @@
 package com.org.group.exceptionHandling;
 
 import com.org.group.dto.ErrorResponseDto;
+import com.org.group.exceptionHandling.UserAlreadyExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -91,6 +92,17 @@ public class GlobalExceptionHandler {
                 request.getDescription(false)
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
+        ErrorResponseDto errorResponse = new ErrorResponseDto(
+                HttpStatus.CONFLICT.value(),
+                "User Already Exists",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)

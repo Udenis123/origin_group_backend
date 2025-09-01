@@ -14,6 +14,8 @@ import java.util.UUID;
 public interface AnalyzerRepository extends JpaRepository<Analyzer, UUID> {
 
     Optional<Analyzer> findByEmail(String email);
+    Optional<Analyzer> findByPhone(String phone);
+    Optional<Analyzer> findByNationalId(String nationalId);
     Optional<Analyzer> findByVerificationCode(String verificationCode);
     
     @Query("SELECT DISTINCT a FROM Analyzer a LEFT JOIN FETCH a.assignment WHERE a.id = :id")

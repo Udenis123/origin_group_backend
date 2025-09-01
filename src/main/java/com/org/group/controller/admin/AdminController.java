@@ -35,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -352,6 +353,34 @@ public class AdminController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
+    }
+
+    // User Validation Endpoints
+
+    @Operation(
+            summary = "Check if user exists",
+            description = "Check if a user exists with the given email, phone, or nationalId in either analyzer or users table"
+    )
+    @GetMapping("/check-user-exists")
+    public ResponseEntity<Boolean> checkUserExists(
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            @RequestParam("nationalId") String nationalId) {
+        boolean exists = adminServices.isUserExists(email, phone, nationalId);
+        return ResponseEntity.ok(exists);
+    }
+
+    @Operation(
+            summary = "Get user existence details",
+            description = "Get detailed information about where a user exists (analyzer or users table) by email, phone, or nationalId"
+    )
+    @GetMapping("/user-existence-details")
+    public ResponseEntity<Map<String, Object>> getUserExistenceDetails(
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            @RequestParam("nationalId") String nationalId) {
+        Map<String, Object> details = adminServices.getUserExistenceDetails(email, phone, nationalId);
+        return ResponseEntity.ok(details);
     }
 
 }

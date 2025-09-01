@@ -7,6 +7,8 @@ import com.org.group.dto.admin.UpdateAnalyzerDto;
 import com.org.group.dto.analytics.AnalyticsResponseDto;
 import com.org.group.dto.userAuth.LoginUserDto;
 import com.org.group.exceptionHandling.UnauthorizedException;
+import com.org.group.exceptionHandling.UserAlreadyExistsException;
+import com.org.group.model.UserSubscription;
 import com.org.group.model.Users;
 import com.org.group.model.analyzer.AnalyticProject;
 import com.org.group.model.analyzer.Analyzer;
@@ -21,6 +23,8 @@ import com.org.group.responses.project.LaunchedProjectAnalyticsResponse;
 import com.org.group.role.Role;
 import com.org.group.services.emailAndJwt.PlanFilterServices;
 import com.org.group.services.emailAndJwt.EmailService;
+import com.org.group.subscription.SubscriptionPlan;
+import com.org.group.subscription.SubscriptionStatus;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import com.org.group.dto.admin.AssignedProjectDto;
@@ -47,8 +52,147 @@ public class AdminServices {
     private final PlanFilterServices planFilterServices;
     private final EmailService emailService;
 
+    private void validateUserDoesNotExist(String email, String phone, String nationalId) {
+        // Check if email exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByEmail = analyzerRepository.findByEmail(email);
+        if (existingAnalyzerByEmail.isPresent()) {
+            throw new UserAlreadyExistsException("An analyzer with email '" + email + "' already exists");
+        }
+        
+        // Check if email exists in users table
+        Optional<Users> existingUserByEmail = userRepository.findByEmail(email);
+        if (existingUserByEmail.isPresent()) {
+            throw new UserAlreadyExistsException("A user with email '" + email + "' already exists");
+        }
+        
+        // Check if phone exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByPhone = analyzerRepository.findByPhone(phone);
+        if (existingAnalyzerByPhone.isPresent()) {
+            throw new UserAlreadyExistsException("An analyzer with phone number '" + phone + "' already exists");
+        }
+        
+        // Check if phone exists in users table
+        Optional<Users> existingUserByPhone = userRepository.findByPhone(phone);
+        if (existingUserByPhone.isPresent()) {
+            throw new UserAlreadyExistsException("A user with phone number '" + phone + "' already exists");
+        }
+        
+        // Check if nationalId exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByNationalId = analyzerRepository.findByNationalId(nationalId);
+        if (existingAnalyzerByNationalId.isPresent()) {
+            throw new UserAlreadyExistsException("An analyzer with national ID '" + nationalId + "' already exists");
+        }
+        
+        // Check if nationalId exists in users table
+        Optional<Users> existingUserByNationalId = userRepository.findByNationalId(nationalId);
+        if (existingUserByNationalId.isPresent()) {
+            throw new UserAlreadyExistsException("A user with national ID '" + nationalId + "' already exists");
+        }
+    }
+
+    public boolean isUserExists(String email, String phone, String nationalId) {
+        // Check if email exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByEmail = analyzerRepository.findByEmail(email);
+        if (existingAnalyzerByEmail.isPresent()) {
+            return true;
+        }
+        
+        // Check if email exists in users table
+        Optional<Users> existingUserByEmail = userRepository.findByEmail(email);
+        if (existingUserByEmail.isPresent()) {
+            return true;
+        }
+        
+        // Check if phone exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByPhone = analyzerRepository.findByPhone(phone);
+        if (existingAnalyzerByPhone.isPresent()) {
+            return true;
+        }
+        
+        // Check if phone exists in users table
+        Optional<Users> existingUserByPhone = userRepository.findByPhone(phone);
+        if (existingUserByPhone.isPresent()) {
+            return true;
+        }
+        
+        // Check if nationalId exists in analyzer table
+        Optional<Analyzer> existingAnalyzerByNationalId = analyzerRepository.findByNationalId(nationalId);
+        if (existingAnalyzerByNationalId.isPresent()) {
+            return true;
+        }
+        
+        // Check if nationalId exists in users table
+        Optional<Users> existingUserByNationalId = userRepository.findByNationalId(nationalId);
+        if (existingUserByNationalId.isPresent()) {
+            return true;
+        }
+        
+        return false;
+    }
+    public Map<String, Object> getUserExistenceDetails(String email, String phone, String nationalId) {
+        Map<String, Object> details = new HashMap<>();
+        
+        // Check analyzer table by email
+        Optional<Analyzer> analyzerByEmail = analyzerRepository.findByEmail(email);
+        if (analyzerByEmail.isPresent()) {
+            details.put("analyzerEmailExists", true);
+            details.put("analyzerEmail", email);
+        } else {
+            details.put("analyzerEmailExists", false);
+        }
+        
+        // Check users table by email
+        Optional<Users> userByEmail = userRepository.findByEmail(email);
+        if (userByEmail.isPresent()) {
+            details.put("userEmailExists", true);
+            details.put("userEmail", email);
+        } else {
+            details.put("userEmailExists", false);
+        }
+        
+        // Check analyzer table by phone
+        Optional<Analyzer> analyzerByPhone = analyzerRepository.findByPhone(phone);
+        if (analyzerByPhone.isPresent()) {
+            details.put("analyzerPhoneExists", true);
+            details.put("analyzerPhone", phone);
+        } else {
+            details.put("analyzerPhoneExists", false);
+        }
+        
+        // Check users table by phone
+        Optional<Users> userByPhone = userRepository.findByPhone(phone);
+        if (userByPhone.isPresent()) {
+            details.put("userPhoneExists", true);
+            details.put("userPhone", phone);
+        } else {
+            details.put("userPhoneExists", false);
+        }
+        
+        // Check analyzer table by nationalId
+        Optional<Analyzer> analyzerByNationalId = analyzerRepository.findByNationalId(nationalId);
+        if (analyzerByNationalId.isPresent()) {
+            details.put("analyzerNationalIdExists", true);
+            details.put("analyzerNationalId", nationalId);
+        } else {
+            details.put("analyzerNationalIdExists", false);
+        }
+        
+        // Check users table by nationalId
+        Optional<Users> userByNationalId = userRepository.findByNationalId(nationalId);
+        if (userByNationalId.isPresent()) {
+            details.put("userNationalIdExists", true);
+            details.put("userNationalId", nationalId);
+        } else {
+            details.put("userNationalIdExists", false);
+        }
+        
+        return details;
+    }
 
     public void registerAnalyzer(AnalyzerDto analyzerDto) {
+        // Validate that user doesn't already exist with the same email, phone, or nationalId
+        validateUserDoesNotExist(analyzerDto.getEmail(), analyzerDto.getPhone(), analyzerDto.getNationalId());
+        
         Analyzer analyzer = Analyzer.builder()
                 .name(analyzerDto.getName())
                 .gender(analyzerDto.getGender())
@@ -63,8 +207,32 @@ public class AdminServices {
                 .nationality(analyzerDto.getNationality())
                 .build();
         analyzerRepository.save(analyzer);
-        
-        // Send welcome email with login credentials
+
+        Users newUser = Users.builder()
+                .name(analyzerDto.getName())
+                .email(analyzerDto.getEmail())
+                .phone(analyzerDto.getPhone())
+                .gender(analyzerDto.getGender())
+                .nationalId(analyzerDto.getNationalId())
+                .nationality(analyzerDto.getNationality())
+                .password(passwordEncoder.encode(analyzerDto.getPassword()))
+                .enabled(true)
+                .photoUrl("https://static.vecteezy.com/system/resources/thumbnails/010/260/479/small_2x/default-avatar-profile-icon-of-social-media-user-in-clipart-style-vector.jpg")
+                .roles(Set.of(Role.CLIENT))
+                .isActive(true)
+                .subscribed(false)
+                .build();
+
+        UserSubscription defaultSubscription = UserSubscription.builder()
+                .user(newUser)
+                .plan(SubscriptionPlan.FREE)
+                .startDate(LocalDateTime.now())
+                .endDate(null)
+                .status(SubscriptionStatus.ACTIVE)
+                .build();
+
+        newUser.setSubscriptions(Set.of(defaultSubscription));
+        userRepository.save(newUser);
         try {
             sendAnalyzerWelcomeEmail(analyzer, analyzerDto.getPassword());
         } catch (MessagingException e) {
@@ -77,6 +245,17 @@ public class AdminServices {
         // Find existing analyzer by ID
         Analyzer existingAnalyzer = analyzerRepository.findById(analyzerId)
                 .orElseThrow(() -> new EntityNotFoundException("Analyzer with id " + analyzerId + " not found"));
+
+        // Validate that updated email, phone, or nationalId doesn't conflict with existing users
+        if (analyzerDto.getEmail() != null && !analyzerDto.getEmail().equals(existingAnalyzer.getEmail())) {
+            validateUserDoesNotExist(analyzerDto.getEmail(), existingAnalyzer.getPhone(), existingAnalyzer.getNationalId());
+        }
+        if (analyzerDto.getPhone() != null && !analyzerDto.getPhone().equals(existingAnalyzer.getPhone())) {
+            validateUserDoesNotExist(existingAnalyzer.getEmail(), analyzerDto.getPhone(), existingAnalyzer.getNationalId());
+        }
+        if (analyzerDto.getNationalId() != null && !analyzerDto.getNationalId().equals(existingAnalyzer.getNationalId())) {
+            validateUserDoesNotExist(existingAnalyzer.getEmail(), existingAnalyzer.getPhone(), analyzerDto.getNationalId());
+        }
 
         // Update fields only if provided
         if (analyzerDto.getName() != null && !analyzerDto.getName().trim().isEmpty()) {
