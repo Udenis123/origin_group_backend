@@ -33,49 +33,7 @@ public class BlogController {
     
     private static final Logger logger = LoggerFactory.getLogger(BlogController.class);
     private final BlogService blogService;
-    
-    @Operation(
-            summary = "Create a new blog",
-            description = "Create a new blog post with title, description, status, and photo in a single request"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Blog created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input or title already exists"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<BlogResponseDto> createBlog(
-            @RequestPart("blog") String blogJson,
-            @RequestPart(value = "photo", required = false) MultipartFile photo) throws IOException {
-        
-        logger.info("Received blog creation request with JSON: {}", blogJson);
-        logger.info("Photo file: {}", photo != null ? photo.getOriginalFilename() : "null");
-        
-        // Parse the JSON string to CreateBlogDto
-        ObjectMapper objectMapper = new ObjectMapper();
-        CreateBlogDto createBlogDto;
-        try {
-            createBlogDto = objectMapper.readValue(blogJson, CreateBlogDto.class);
-            logger.info("Parsed blog DTO: title={}, description={}, status={}", 
-                createBlogDto.getTitle(), createBlogDto.getDescription(), createBlogDto.getStatus());
-        } catch (Exception e) {
-            logger.error("Failed to parse blog JSON: {}", e.getMessage());
-            throw new IllegalArgumentException("Invalid JSON format for blog data: " + e.getMessage());
-        }
-        
-        // Validate the parsed DTO
-        if (createBlogDto.getTitle() == null || createBlogDto.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("Blog title is required");
-        }
-        if (createBlogDto.getDescription() == null || createBlogDto.getDescription().trim().isEmpty()) {
-            throw new IllegalArgumentException("Blog description is required");
-        }
-        
-        BlogResponseDto createdBlog = blogService.createBlog(createBlogDto, photo);
-        logger.info("Blog created successfully with ID: {}", createdBlog.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBlog);
-    }
-    
+
     @Operation(
             summary = "Create a new blog (JSON only)",
             description = "Create a new blog post with title, description, and status (no photo)"
@@ -135,21 +93,7 @@ public class BlogController {
         List<BlogResponseDto> blogs = blogService.getPublishedBlogs();
         return ResponseEntity.ok(blogs);
     }
-    
-    @Operation(
-            summary = "Get blogs by status",
-            description = "Retrieve blogs filtered by status (DRAFT or PUBLISHED)"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Blogs retrieved successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid status"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<BlogResponseDto>> getBlogsByStatus(@PathVariable BlogStatus status) {
-        List<BlogResponseDto> blogs = blogService.getBlogsByStatus(status);
-        return ResponseEntity.ok(blogs);
-    }
+
     
     @Operation(
             summary = "Update blog",

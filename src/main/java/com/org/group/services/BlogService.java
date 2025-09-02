@@ -24,37 +24,37 @@ public class BlogService {
     
     private final BlogRepository blogRepository;
     private final CloudinaryService cloudinaryService;
-    
+
     public BlogResponseDto createBlog(CreateBlogDto createBlogDto, MultipartFile photo) throws IOException {
         // Check if blog with same title already exists
         if (blogRepository.existsByTitle(createBlogDto.getTitle())) {
             throw new IllegalArgumentException("Blog with title '" + createBlogDto.getTitle() + "' already exists");
         }
-        
+
         Blog blog = Blog.builder()
                 .title(createBlogDto.getTitle())
                 .description(createBlogDto.getDescription())
                 .status(createBlogDto.getStatus())
                 .build();
-        
+
         // Set publishedAt if status is PUBLISHED
         if (blog.getStatus() == BlogStatus.PUBLISHED) {
             blog.setPublishedAt(LocalDateTime.now());
         }
-        
+
         // Save blog first to get the ID
         Blog savedBlog = blogRepository.save(blog);
-        
+
         // Upload photo if provided
         if (photo != null && !photo.isEmpty()) {
             String photoUrl = cloudinaryService.uploadFile(photo, null);
             savedBlog.setPhotoUrl(photoUrl);
             savedBlog = blogRepository.save(savedBlog);
         }
-        
+
         return mapToResponseDto(savedBlog);
     }
-    
+
     public BlogResponseDto createBlog(CreateBlogDto createBlogDto) throws IOException {
         return createBlog(createBlogDto, null);
     }
@@ -130,13 +130,7 @@ public class BlogService {
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
-    
-    public List<BlogResponseDto> getBlogsByStatus(BlogStatus status) {
-        List<Blog> blogs = blogRepository.findByStatusOrderByPublishedAtDesc(status);
-        return blogs.stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
-    }
+
     
     public List<BlogResponseDto> getPublishedBlogs() {
         List<Blog> blogs = blogRepository.findPublishedBlogsOrderByPublishedDate(BlogStatus.PUBLISHED);
