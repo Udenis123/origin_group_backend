@@ -26,7 +26,7 @@ public class Blog {
     @Column(nullable = false, unique = true)
     private String title;
     
-    @Column
+    @Column(nullable = false ,length = 5000)
     private String description;
     
     @Column(name = "photo_url")
