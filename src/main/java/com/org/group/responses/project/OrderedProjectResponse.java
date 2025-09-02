@@ -15,7 +15,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderedProjectResponse {
     private UUID projectId;
-    private UUID userId;
     private String clientName;
     private String companyName;
     private String professionalStatus;
