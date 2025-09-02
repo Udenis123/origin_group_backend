@@ -1,18 +1,13 @@
+version: "3.8"
+
 services:
   app:
     container_name: origin-group-api
     image: udenis123/origin-group:latest
-    build: ./
     ports:
-      - "8080:8080"
+      - "2070:2070"
     depends_on:
       - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ep-noisy-salad-adhc0ghz-pooler.c-2.us-east-1.aws.neon.tech/origin_group?sslmode=require&channel_binding=require
-      SPRING_DATASOURCE_USERNAME: neondb_owner
-      SPRING_DATASOURCE_PASSWORD: npg_xRpi6lAeLdz4
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
     env_file:
       - .env
     volumes:
@@ -24,30 +19,27 @@ services:
     image: postgres:latest
     container_name: origin-group-postgresql
     restart: always
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: origin_group
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mynetwork
 
-#  pgadmin:
-#    image: dpage/pgadmin4
-#    container_name: pgadmin4
-#    restart: always
-#    ports:
-#      - "5050:80"  # you can use any port on the host (e.g., 5050)
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@example.com
-#      PGADMIN_DEFAULT_PASSWORD: admin123
-#    depends_on:
-#      - db
-#    networks:
-#      - mynetwork
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - mynetwork
 
 volumes:
   postgres_data:
