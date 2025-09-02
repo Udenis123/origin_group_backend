@@ -5,7 +5,7 @@ services:
     container_name: origin-group-api
     image: udenis123/origin-group:latest
     ports:
-      - "2070:2070"
+      - "8090:8090"
     depends_on:
       - db
     env_file:
