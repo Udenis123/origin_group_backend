@@ -4,6 +4,7 @@ import com.org.group.dto.LaunchProject.AnalyticStatus;
 import com.org.group.model.Users;
 import com.org.group.model.project.CommunityProject;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface CommunityProjectRepository extends JpaRepository<CommunityProje
     
     // Find projects by status
     List<CommunityProject> findByStatus(AnalyticStatus status);
+    
+
 }

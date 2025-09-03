@@ -82,34 +82,58 @@ public class UserService {
         // Get current subscription using PlanFilterServices
         String currentSubscription = planFilterServices.getPlanFiltered(user);
         
-        // Get launched projects (only status and project name)
-        List<LaunchedProjectDto> launchedProjects = launchProjectRepository.findByUserId(userId)
-                .stream()
-                .map(project -> LaunchedProjectDto.builder()
-                        .id(project.getProjectId())
-                        .projectName(project.getProjectName())
-                        .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
-                        .build())
-                .toList();
+        // Get launched projects (only status and project name) - simplified for now
+        List<LaunchedProjectDto> launchedProjects = new ArrayList<>();
+        try {
+            List<LaunchProject> projects = launchProjectRepository.findByUserId(userId);
+            launchedProjects = projects.stream()
+                    .map(project -> LaunchedProjectDto.builder()
+                            .id(project.getProjectId())
+                            .projectName(project.getProjectName())
+                            .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
+                            .build())
+                    .toList();
+        } catch (Exception e) {
+            // Log the error but continue with empty list
+            System.err.println("Error fetching launched projects: " + e.getMessage());
+            launchedProjects = new ArrayList<>();
+        }
         
-        // Get community projects (only status and project name)
-        List<CommunityProjectDto> communityProjects = communityProjectRepository.findByUser(user)
-                .stream()
-                .map(project -> CommunityProjectDto.builder()
-                        .id(project.getId())
-                        .projectName(project.getProjectName())
-                        .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
-                        .build())
-                .toList();
+        // Get community projects (only status and project name) - simplified for now
+        List<CommunityProjectDto> communityProjects = new ArrayList<>();
+        try {
+            List<CommunityProject> projects = communityProjectRepository.findByUser(user);
+            communityProjects = projects.stream()
+                    .map(project -> CommunityProjectDto.builder()
+                            .id(project.getId())
+                            .projectName(project.getProjectName())
+                            .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
+                            .build())
+                    .toList();
+        } catch (Exception e) {
+            // Log the error but continue with empty list
+            System.err.println("Error fetching community projects: " + e.getMessage());
+            communityProjects = new ArrayList<>();
+        }
         
-        // Get bookmarks
-        List<BookmarkDto> bookmarks = user.getBookmarks().stream()
-                .map(bookmark -> BookmarkDto.builder()
-                        .id(bookmark.getId())
-                        .projectName(bookmark.getProject().getProjectName())
-                        .projectType("LAUNCHED") // Since bookmarks are only for LaunchProject
-                        .build())
-                .toList();
+        // Get bookmarks - simplified for now
+        List<BookmarkDto> bookmarks = new ArrayList<>();
+        try {
+            Set<Bookmark> userBookmarks = user.getBookmarks();
+            if (userBookmarks != null) {
+                bookmarks = userBookmarks.stream()
+                        .map(bookmark -> BookmarkDto.builder()
+                                .id(bookmark.getId())
+                                .projectName(bookmark.getProject().getProjectName())
+                                .projectType("LAUNCHED") // Since bookmarks are only for LaunchProject
+                                .build())
+                        .toList();
+            }
+        } catch (Exception e) {
+            // Log the error but continue with empty list
+            System.err.println("Error fetching bookmarks: " + e.getMessage());
+            bookmarks = new ArrayList<>();
+        }
         
         // Build user basic info
         UserBasicInfoDto userInfo = UserBasicInfoDto.builder()

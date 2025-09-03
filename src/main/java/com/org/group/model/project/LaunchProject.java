@@ -103,8 +103,11 @@ public class LaunchProject {
     //extra field
     private int countBookmark;
     private int countAssignment;
+    @Column(nullable = true)
     private long views;
+    @Column(nullable = true)
     private long interaction;
+    @Column(nullable = true)
     private long interestedInvestors;
 
 
