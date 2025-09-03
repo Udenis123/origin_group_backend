@@ -51,6 +51,5 @@ public class LaunchedProjectAnalyticsResponse {
     private String wantOriginToBusinessPlanQ;
     private String intellectualProjectQ;
     private String email;
-    private AnalyticProject analyticProject;
 
 }

@@ -401,7 +401,6 @@ public class AdminServices {
                         .wantOriginToBusinessPlanQ(project.getWantOriginToBusinessPlanQ())
                         .intellectualProjectQ(project.getIntellectualProjectQ())
                         .email(project.getEmail())
-                        .analyticProject(project.getAnalyticProject())
                         .build())
                 .toList();
 

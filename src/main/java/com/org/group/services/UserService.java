@@ -171,6 +171,14 @@ public class UserService {
         user.setPhone(profileUpdateDto.getPhone());
         user.setProfessional(profileUpdateDto.getProfessional());
         userRepository.save(user);
+        
+        Optional<Analyzer> analyzerOpt = analyzerRepository.findByEmail(user.getEmail());
+        if (analyzerOpt.isPresent()) {
+            Analyzer analyzer = analyzerOpt.get();
+            analyzer.setName(profileUpdateDto.getName());
+            analyzer.setPhone(profileUpdateDto.getPhone());
+            analyzerRepository.save(analyzer);
+        }
         return "User information updated successfully";
 
     }
@@ -190,31 +198,45 @@ public class UserService {
         UUID userId = changePasswordDto.getUserId();
         String oldPassword = changePasswordDto.getOldPassword();
         String newPassword = changePasswordDto.getNewPassword();
-
+    
         Users user = userRepository.findById(userId).orElse(null);
         Analyzer analyzer = analyzerRepository.findById(userId).orElse(null);
-
+    
         if (user != null) {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 throw new RuntimeException("Old password is incorrect.");
             }
-            if(user.getEmail().equals(analyzer.getEmail())) {
-                analyzer.setPassword(passwordEncoder.encode(newPassword));
-                analyzerRepository.save(analyzer);
-            }
+            
+            // Update user password
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
+            
+            // Update corresponding analyzer if exists with same email
+            Optional<Analyzer> analyzerOpt = analyzerRepository.findByEmail(user.getEmail());
+            if (analyzerOpt.isPresent()) {
+                Analyzer correspondingAnalyzer = analyzerOpt.get();
+                correspondingAnalyzer.setPassword(passwordEncoder.encode(newPassword));
+                analyzerRepository.save(correspondingAnalyzer);
+            }
+            
             return "User password changed successfully";
         } else if (analyzer != null) {
             if (!passwordEncoder.matches(oldPassword, analyzer.getPassword())) {
                 throw new RuntimeException("Old password is incorrect.");
             }
-            if(analyzer.getEmail().equals(user.getEmail())) {
-                user.setPassword(passwordEncoder.encode(newPassword));
-                userRepository.save(user);
-            }
+            
+            // Update analyzer password
             analyzer.setPassword(passwordEncoder.encode(newPassword));
             analyzerRepository.save(analyzer);
+            
+            // Update corresponding user if exists with same email
+            Optional<Users> userOpt = userRepository.findByEmail(analyzer.getEmail());
+            if (userOpt.isPresent()) {
+                Users correspondingUser = userOpt.get();
+                correspondingUser.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(correspondingUser);
+            }
+            
             return "Analyzer password changed successfully";
         } else {
             throw new RuntimeException("User or Analyzer not found with the given ID.");
