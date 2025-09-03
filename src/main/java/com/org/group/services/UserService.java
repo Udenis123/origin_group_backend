@@ -127,21 +127,26 @@ public class UserService {
     }
     public ResponseEntity<Map<String,String>> verifyUser(UUID userId, String code) {
         Optional<Users> optionalUser = userRepository.findById(userId);
+        Optional<Analyzer> optionalAnalyzer = analyzerRepository.findByEmail(optionalUser.get().getEmail());
 
         if (!optionalUser.get().getVerificationCode().equals(code)) {
             throw new RuntimeException("Invalid verification code.");
         }
-
         Users user = optionalUser.get();
-
+        Analyzer analyzer = optionalAnalyzer.get();
         if (user.getCodeExpiryAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Verification code has expired. Please request a new one.");
+        }
+        if(user.getEmail().equals(analyzer.getEmail())) {
+            analyzer.setEmail(user.getTempEmail());
+            analyzerRepository.save(analyzer);
         }
         user.setVerificationCode(null);
         user.setCodeExpiryAt(null);
         user.setEmail(user.getTempEmail());
         user.setTempEmail(null);
         userRepository.save(user);
+
         return ResponseEntity.ok(Map.of("email", user.getEmail()));
     }
     public String updateUserInformation(ProfileUpdateDto profileUpdateDto) {

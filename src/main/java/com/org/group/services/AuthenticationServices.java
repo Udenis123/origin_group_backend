@@ -214,24 +214,15 @@ public class AuthenticationServices {
     }
 //forgot password section
     public void sendPasswordResetCode(String email) {
-        Optional<Users> optionalUser = userRepository.findByEmail(email);
         Optional<Analyzer> optionalAnalyzer = analyzerRepository.findByEmail(email);
-        
+        Optional<Users> optionalUser = userRepository.findByEmail(email);
+
         if (optionalUser.isEmpty() && optionalAnalyzer.isEmpty()) {
             throw new RuntimeException("User not found");
         }
         
         String resetCode = generateVerificationCode();
         LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(15); // Code valid for 15 minutes
-        
-        // If user exists in Users table
-        if (optionalUser.isPresent()) {
-            Users user = optionalUser.get();
-            user.setVerificationCode(resetCode);
-            user.setCodeExpiryAt(expiryTime);
-            userRepository.save(user);
-            sendPasswordResetEmail(user, resetCode);
-        }
         
         // If user exists in Analyzer table
         if (optionalAnalyzer.isPresent()) {
@@ -241,11 +232,21 @@ public class AuthenticationServices {
             analyzerRepository.save(analyzer);
             sendPasswordResetEmailAnalyzer(analyzer, resetCode);
         }
+
+        // If user exists in Users table
+        if (optionalUser.isPresent()) {
+            Users user = optionalUser.get();
+            user.setVerificationCode(resetCode);
+            user.setCodeExpiryAt(expiryTime);
+            userRepository.save(user);
+            sendPasswordResetEmail(user, resetCode);
+        }
     }
 
     public void resetPassword(ResetPasswordDto resetPasswordDto) {
-        Optional<Users> optionalUser = userRepository.findByEmail(resetPasswordDto.getEmail());
         Optional<Analyzer> optionalAnalyzer = analyzerRepository.findByEmail(resetPasswordDto.getEmail());
+        Optional<Users> optionalUser = userRepository.findByEmail(resetPasswordDto.getEmail());
+
 
         // User must exist in either Users or Analyzer
         if (optionalUser.isEmpty() && optionalAnalyzer.isEmpty()) {
@@ -253,6 +254,23 @@ public class AuthenticationServices {
         }
 
         String encodedPassword = passwordEncoder.encode(resetPasswordDto.getNewPassword());
+
+        // If it's an analyzer
+        if (optionalAnalyzer.isPresent()) {
+            Analyzer analyzer = optionalAnalyzer.get();
+            if (analyzer.getVerificationCode() == null) {
+                throw new RuntimeException("Request verification code first.");
+            }
+            if (analyzer.getCodeExpiryAt().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Verification code has expired. Please request a new one.");
+            }
+
+            analyzer.setPassword(encodedPassword);
+            analyzer.setVerificationCode(null);
+            analyzer.setCodeExpiryAt(null);
+            analyzerRepository.save(analyzer);
+        }
+
 
         // If it's a user
         if (optionalUser.isPresent()) {
@@ -270,21 +288,6 @@ public class AuthenticationServices {
             userRepository.save(user);
         }
 
-        // If it's an analyzer
-        if (optionalAnalyzer.isPresent()) {
-            Analyzer analyzer = optionalAnalyzer.get();
-            if (analyzer.getVerificationCode() == null) {
-                throw new RuntimeException("Request verification code first.");
-            }
-            if (analyzer.getCodeExpiryAt().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Verification code has expired. Please request a new one.");
-            }
-
-            analyzer.setPassword(encodedPassword);
-            analyzer.setVerificationCode(null);
-            analyzer.setCodeExpiryAt(null);
-            analyzerRepository.save(analyzer);
-        }
     }
 
 
