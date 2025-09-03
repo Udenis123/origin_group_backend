@@ -216,22 +216,30 @@ public class AuthenticationServices {
     public void sendPasswordResetCode(String email) {
         Optional<Users> optionalUser = userRepository.findByEmail(email);
         Optional<Analyzer> optionalAnalyzer = analyzerRepository.findByEmail(email);
+        
+        if (optionalUser.isEmpty() && optionalAnalyzer.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        
+        String resetCode = generateVerificationCode();
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(15); // Code valid for 15 minutes
+        
+        // If user exists in Users table
         if (optionalUser.isPresent()) {
             Users user = optionalUser.get();
-            String resetCode = generateVerificationCode();
             user.setVerificationCode(resetCode);
-            user.setCodeExpiryAt(LocalDateTime.now().plusMinutes(15)); // Code valid for 15 minutes
+            user.setCodeExpiryAt(expiryTime);
             userRepository.save(user);
             sendPasswordResetEmail(user, resetCode);
-        } else if (optionalAnalyzer.isPresent()) {
+        }
+        
+        // If user exists in Analyzer table
+        if (optionalAnalyzer.isPresent()) {
             Analyzer analyzer = optionalAnalyzer.get();
-            String resetCode = generateVerificationCode();
             analyzer.setVerificationCode(resetCode);
-            analyzer.setCodeExpiryAt(LocalDateTime.now().plusMinutes(15));
+            analyzer.setCodeExpiryAt(expiryTime);
             analyzerRepository.save(analyzer);
             sendPasswordResetEmailAnalyzer(analyzer, resetCode);
-        }else {
-            throw new RuntimeException("User not found");
         }
     }
 
@@ -244,6 +252,8 @@ public class AuthenticationServices {
             throw new RuntimeException("User not found. Please register first.");
         }
 
+        String encodedPassword = passwordEncoder.encode(resetPasswordDto.getNewPassword());
+
         // If it's a user
         if (optionalUser.isPresent()) {
             Users user = optionalUser.get();
@@ -254,7 +264,7 @@ public class AuthenticationServices {
                 throw new RuntimeException("Verification code has expired. Please request a new one.");
             }
 
-            user.setPassword(passwordEncoder.encode(resetPasswordDto.getNewPassword()));
+            user.setPassword(encodedPassword);
             user.setVerificationCode(null);
             user.setCodeExpiryAt(null);
             userRepository.save(user);
@@ -270,7 +280,7 @@ public class AuthenticationServices {
                 throw new RuntimeException("Verification code has expired. Please request a new one.");
             }
 
-            analyzer.setPassword(passwordEncoder.encode(resetPasswordDto.getNewPassword()));
+            analyzer.setPassword(encodedPassword);
             analyzer.setVerificationCode(null);
             analyzer.setCodeExpiryAt(null);
             analyzerRepository.save(analyzer);
