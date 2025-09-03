@@ -102,6 +102,10 @@ public class CloudinaryService {
         return uploadToCloudinary(file, "auto"); // For text documents, mind maps, etc.
     }
 
+    public String uploadAnalyticsDocs(MultipartFile file) throws IOException {
+        return uploadToCloudinary(file, "auto"); // For text documents, mind maps, etc.
+    }
+
     public String uploadProjectVideo(MultipartFile file) throws IOException {
         return uploadToCloudinary(file, "video"); // Ensure video is uploaded as a video
     }

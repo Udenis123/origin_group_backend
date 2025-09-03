@@ -15,6 +15,7 @@ import com.org.group.repository.analytics.AnalyticsFeedbackRepository;
 import com.org.group.repository.analytics.AssignmentRepository;
 import com.org.group.repository.project.LaunchProjectRepository;
 import com.org.group.responses.project.LaunchProjectResponse;
+import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.UploadFileServices.FileStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ public class AnalyzerServices {
     private final AnalyzerRepository analyzerRepository;
     private final AssignmentRepository assignmentRepository;
     private final FileStorageService fileStorageService;
+    private final CloudinaryService cloudinaryService;
     private final AnalyticProjectRepository analyticsRepository;
     private final AnalyticsFeedbackRepository  feedbackRepository;
     public ResponseEntity<List<LaunchProjectResponse>> getAllPendingProject() {
@@ -200,7 +202,7 @@ public class AnalyzerServices {
         }
         String analyticsDocUrl=null ;
         if(!analyticsDocument.isEmpty() ){
-             analyticsDocUrl = fileStorageService.storeFile(analyticsDocument,"analytic_doc_for_"+analyticsDto.getProjectId());
+             analyticsDocUrl = cloudinaryService.uploadAnalyticsDocs(analyticsDocument);
         }
 
         AnalyticProject analyticProject = AnalyticProject.builder()
@@ -264,12 +266,9 @@ public class AnalyzerServices {
         String analyticsDocUrl = analyticProject1.getAnalyticsDocumentUrl();
         if (analyticsDocument != null && !analyticsDocument.isEmpty()) {
             if (analyticsDocUrl != null && !analyticsDocUrl.isEmpty()) {
-                fileStorageService.deleteFile(analyticsDocUrl);
+                cloudinaryService.deleteFile(analyticsDocUrl);
             }
-            analyticsDocUrl = fileStorageService.storeFile(
-                    analyticsDocument,
-                    "analytic_doc_for_" + analyticsDto.getProjectId()
-            );
+            analyticsDocUrl = cloudinaryService.uploadAnalyticsDocs(analyticsDocument);
         }
 
         // Update project fields
