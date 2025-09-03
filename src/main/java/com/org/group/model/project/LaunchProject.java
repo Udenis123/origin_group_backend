@@ -103,6 +103,9 @@ public class LaunchProject {
     //extra field
     private int countBookmark;
     private int countAssignment;
+    private long views;
+    private long interaction;
+    private long interestedInvestors;
 
 
 

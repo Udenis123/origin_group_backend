@@ -143,7 +143,6 @@ public class UserProjectController {
     public ResponseEntity<?> bookmarkProject(@RequestParam UUID userId, @RequestParam  UUID projectId) {
         bookmarkServices.bookmarkProject(userId, projectId);
         return ResponseEntity.ok("Project bookmarked successfully");
-
     }
     @DeleteMapping("/bookmark/remove")
     public ResponseEntity<?> removeBookmarkProject(@RequestParam UUID userId,@RequestParam UUID projectId) {

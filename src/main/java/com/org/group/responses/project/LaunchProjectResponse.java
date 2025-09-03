@@ -53,4 +53,9 @@ public class LaunchProjectResponse {
     private String email;
     private String feedback;
 
+    private int countBookmark;
+    private int countAssignment;
+    private long views;
+    private long interaction;
+
 }

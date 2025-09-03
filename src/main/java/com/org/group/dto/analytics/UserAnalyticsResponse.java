@@ -15,11 +15,12 @@ public class UserAnalyticsResponse {
     private double annualIncome;
     private float roi;
     private String incomeDescription;
-    private int totalView;
+    private long totalView;
     private int bookmarks;
-    private int interested;
+    private long interested;
     private String analyticsDocumentUrl;
     private double price;
     private double costOfDevelopment;
     private UUID projectId;
+    private long interactions;
 }

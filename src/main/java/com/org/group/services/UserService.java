@@ -9,10 +9,14 @@ import com.org.group.model.analyzer.Analyzer;
 import com.org.group.repository.AnalyzerRepository;
 import com.org.group.repository.UserRepository;
 import com.org.group.repository.UserSubscriptionRepository;
+import com.org.group.repository.project.LaunchProjectRepository;
+import com.org.group.repository.project.CommunityProjectRepository;
+import com.org.group.repository.project.BookmarkRepository;
 import com.org.group.services.UploadFileServices.CloudinaryService;
 import com.org.group.services.emailAndJwt.EmailService;
 import com.org.group.services.emailAndJwt.PlanFilterServices;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.org.group.model.UserRatting;
 import com.org.group.repository.UserRattingRepository;
+import com.org.group.dto.userResponse.UserDetailResponseDto;
+import com.org.group.dto.userResponse.UserBasicInfoDto;
+import com.org.group.dto.userResponse.LaunchedProjectDto;
+import com.org.group.dto.userResponse.CommunityProjectDto;
+import com.org.group.dto.userResponse.BookmarkDto;
+import com.org.group.model.project.LaunchProject;
+import com.org.group.model.project.CommunityProject;
+import com.org.group.model.project.Bookmark;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -40,8 +52,11 @@ public class UserService {
     private final UserRattingRepository userRattingRepository;
     private final PlanFilterServices planFilterServices;
     private final CloudinaryService cloudinaryService;
+    private final LaunchProjectRepository launchProjectRepository;
+    private final CommunityProjectRepository communityProjectRepository;
+    private final BookmarkRepository bookmarkRepository;
 
-    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository, PlanFilterServices planFilterServices, CloudinaryService cloudinaryService) {
+    public UserService(UserRepository userRepository, EmailService emailService, UserSubscriptionRepository userSubscriptionRepository, PasswordEncoder passwordEncoder, AnalyzerRepository analyzerRepository, UserRattingRepository userRattingRepository, PlanFilterServices planFilterServices, CloudinaryService cloudinaryService, LaunchProjectRepository launchProjectRepository, CommunityProjectRepository communityProjectRepository, BookmarkRepository bookmarkRepository) {
         this.userRepository = userRepository;
         this.userSubscriptionRepository = userSubscriptionRepository;
         this.emailService = emailService;
@@ -50,11 +65,77 @@ public class UserService {
         this.userRattingRepository = userRattingRepository;
         this.planFilterServices = planFilterServices;
         this.cloudinaryService = cloudinaryService;
+        this.launchProjectRepository = launchProjectRepository;
+        this.communityProjectRepository = communityProjectRepository;
+        this.bookmarkRepository = bookmarkRepository;
+    }
+    public Users getUserById(UUID userId){
+        return  userRepository.findById(userId).orElseThrow(()-> new EntityNotFoundException("user Not found"));
     }
 
 
-    public Users getUserById(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User Not Found"));
+
+    public UserDetailResponseDto getUserByIdDetails(UUID userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+        
+        // Get current subscription using PlanFilterServices
+        String currentSubscription = planFilterServices.getPlanFiltered(user);
+        
+        // Get launched projects (only status and project name)
+        List<LaunchedProjectDto> launchedProjects = launchProjectRepository.findByUserId(userId)
+                .stream()
+                .map(project -> LaunchedProjectDto.builder()
+                        .id(project.getProjectId())
+                        .projectName(project.getProjectName())
+                        .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
+                        .build())
+                .toList();
+        
+        // Get community projects (only status and project name)
+        List<CommunityProjectDto> communityProjects = communityProjectRepository.findByUser(user)
+                .stream()
+                .map(project -> CommunityProjectDto.builder()
+                        .id(project.getId())
+                        .projectName(project.getProjectName())
+                        .status(project.getStatus() != null ? project.getStatus().toString() : "UNKNOWN")
+                        .build())
+                .toList();
+        
+        // Get bookmarks
+        List<BookmarkDto> bookmarks = user.getBookmarks().stream()
+                .map(bookmark -> BookmarkDto.builder()
+                        .id(bookmark.getId())
+                        .projectName(bookmark.getProject().getProjectName())
+                        .projectType("LAUNCHED") // Since bookmarks are only for LaunchProject
+                        .build())
+                .toList();
+        
+        // Build user basic info
+        UserBasicInfoDto userInfo = UserBasicInfoDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .professional(user.getProfessional())
+                .photoUrl(user.getPhotoUrl())
+                .nationalId(user.getNationalId())
+                .isActive(user.isActive())
+                .isSubscribed(user.getSubscribed())
+                .build();
+        
+        return UserDetailResponseDto.builder()
+                .userInfo(userInfo)
+                .currentSubscription(currentSubscription)
+                .launchedProjects(launchedProjects)
+                .communityProjects(communityProjects)
+                .bookmarks(bookmarks)
+                .build();
+    }
+    
+    // Method for backward compatibility - returns the original Users object
+    public Users getUserByIdOriginal(UUID userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
     }
     public Users getUserByHomeId(UUID userId) {
         return userRepository.findById(userId).orElse(null);

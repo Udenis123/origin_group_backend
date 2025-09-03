@@ -370,7 +370,9 @@ public class LaunchProjectServices {
     public LaunchProjectResponse getProjectById(UUID projectId) {
         // Get the latest feedback for the project if it exists
         Optional<AnalyticsFeedback> latestFeedback = feedbackRepository.findLatestByProjectId(projectId);
-        
+        LaunchProject project2= launchProjectRepository.findById(projectId).orElse(null);
+        assert project2 != null;
+        project2.setViews(project2.getViews() + 1);
         return launchProjectRepository.findById(projectId)
                 .map(project -> {
                             LaunchProjectResponse.LaunchProjectResponseBuilder builder = LaunchProjectResponse.builder()
@@ -407,9 +409,15 @@ public class LaunchProjectServices {
                                     .phone(project.getPhone())
                                     .needSponsorQ(project.getNeedSponsorQ())
                                     .numberOfEmp(project.getNumberOfEmp())
+                                    .views(project.getViews())
+                                    .interaction(project.getInteraction())
+                                    .countAssignment(project.getCountAssignment())
+                                    .countBookmark(project.getCountBookmark())
                                     .wantOriginToBusinessPlanQ(project.getWantOriginToBusinessPlanQ())
                                     .intellectualProjectQ(project.getIntellectualProjectQ())
                                     .email(project.getEmail());
+
+
                             
                             // Only add feedback if it exists and the project is declined
                             if (latestFeedback.isPresent() && project.getStatus() == AnalyticStatus.DECLINED) {
@@ -531,6 +539,7 @@ public class LaunchProjectServices {
     public ResponseEntity<UserAnalyticsResponse> getAnalyticsOfProject(UUID userId, UUID projectId) {
         Users user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         LaunchProject project = launchProjectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+
             String highestPriorityPlan = planFilterServices.getPlanFiltered(user);
         AnalyticProject analytics = analyticsRepository.findByLaunchProject_ProjectId(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Analytics not found for project"));
@@ -541,6 +550,10 @@ public class LaunchProjectServices {
         if (highestPriorityPlan.equals("BASIC") || highestPriorityPlan.equals("FREE")) {
             throw new RuntimeException("upgrade your plan");
         }
+        LaunchProject project1 = launchProjectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+        assert project1 != null;
+        project.setInteraction(project.getInteraction()+1);
+        launchProjectRepository.save(project);
 
         return ResponseEntity.ok( UserAnalyticsResponse.builder()
                 .analyticsId(analytics.getAnalyticId())
@@ -550,9 +563,10 @@ public class LaunchProjectServices {
                 .annualIncome(analytics.getAnnualIncome())
                 .roi(analytics.getRoi())
                 .incomeDescription(analytics.getIncomeDescription())
-                .totalView(analytics.getTotalView())
-                .bookmarks(analytics.getBookmarks())
-                .interested(analytics.getInterested())
+                .totalView(project1.getViews())
+                .bookmarks(project1.getCountBookmark())
+                .interested(project1.getInterestedInvestors())
+                .interactions(project1.getInteraction())
                 .price(analytics.getPrice())
                 .costOfDevelopment(analytics.getCostOfDevelopment())
                 .analyticsDocumentUrl(analytics.getAnalyticsDocumentUrl())

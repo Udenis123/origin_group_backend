@@ -4,6 +4,7 @@ import com.org.group.dto.userAuth.ChangePasswordDto;
 import com.org.group.dto.userAuth.ProfileUpdateDto;
 import com.org.group.dto.userAuth.UserRattingDto;
 import com.org.group.dto.userResponse.SubscriptionResponse;
+import com.org.group.dto.userResponse.UserDetailResponseDto;
 import com.org.group.dto.userResponse.UserRatingResponse;
 import com.org.group.model.UserRatting;
 import com.org.group.model.UserSubscription;
@@ -165,9 +166,9 @@ public class UserController {
             description = "this end point it get all details of user from scratch"
     )
     @GetMapping("/id")
-    public ResponseEntity<Users> getUserById(@RequestParam("userId") UUID userId) {
-        Users userDetails = userService.getUserById(userId);
-        return ResponseEntity.ok(userDetails);
+    public ResponseEntity<UserDetailResponseDto> getUserById(@RequestParam("userId") UUID userId) {
+
+        return ResponseEntity.ok(userService.getUserByIdDetails(userId));
     }
 
 
