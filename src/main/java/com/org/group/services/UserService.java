@@ -81,6 +81,13 @@ public class UserService {
             Users user = userOpt.get();
             try {
                 String fileUrl = cloudinaryService.uploadFile(file, user.getPhotoUrl());
+                Optional<Analyzer> analyzerOpt = analyzerRepository.findByEmail(user.getEmail());
+                if (analyzerOpt.isPresent() ) {
+                    Analyzer analyzer = analyzerOpt.get();
+                    cloudinaryService.deleteFile(analyzer.getProfileUrl());
+                    analyzer.setProfileUrl(fileUrl);
+                    analyzerRepository.save(analyzer);
+                }
                 user.setPhotoUrl(fileUrl);
                 userRepository.save(user);
                 return "Photo uploaded successfully";
@@ -94,6 +101,13 @@ public class UserService {
             Analyzer analyzer = analyzerOpt.get();
             try {
                 String photo = cloudinaryService.uploadFile(file, analyzer.getProfileUrl());
+                Optional<Users> userOpts = userRepository.findByEmail(analyzer.getEmail());
+                if (userOpts.isPresent()) {
+                    Users user = userOpts.get();
+                    cloudinaryService.deleteFile(user.getPhotoUrl());
+                    user.setPhotoUrl(photo);
+                    userRepository.save(user);
+                }
                 analyzer.setProfileUrl(photo);
                 analyzerRepository.save(analyzer);
                 return "Photo uploaded successfully";
@@ -182,14 +196,22 @@ public class UserService {
 
         if (user != null) {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-                throw new RuntimeException("Old password is incorrect for user.");
+                throw new RuntimeException("Old password is incorrect.");
+            }
+            if(user.getEmail().equals(analyzer.getEmail())) {
+                analyzer.setPassword(passwordEncoder.encode(newPassword));
+                analyzerRepository.save(analyzer);
             }
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
             return "User password changed successfully";
         } else if (analyzer != null) {
             if (!passwordEncoder.matches(oldPassword, analyzer.getPassword())) {
-                throw new RuntimeException("Old password is incorrect for analyzer.");
+                throw new RuntimeException("Old password is incorrect.");
+            }
+            if(analyzer.getEmail().equals(user.getEmail())) {
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userRepository.save(user);
             }
             analyzer.setPassword(passwordEncoder.encode(newPassword));
             analyzerRepository.save(analyzer);
