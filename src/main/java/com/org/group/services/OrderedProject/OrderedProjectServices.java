@@ -77,7 +77,7 @@ public class OrderedProjectServices {
             throw new IOException("Failed to upload business plan document", e);
         }
         OrderedProject saved = orderedProjectRepository.save(project);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved.toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Create success full !!");
     }
 
     public List<OrderedProjectResponse> getAllOrderedProjects() {
