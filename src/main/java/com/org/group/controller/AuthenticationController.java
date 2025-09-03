@@ -182,6 +182,11 @@ public class AuthenticationController {
         List<HomeProjectResponse> homeProjects = launchProjectService.getHomeProjects();
         return ResponseEntity.ok(homeProjects);
     }
+    @GetMapping("/launch/project/{id}")
+    public ResponseEntity<HomeProjectResponse> getHomeProjectsById(@PathVariable UUID id) {
+        HomeProjectResponse homeProjects = launchProjectService.getHomeProjectsById(id);
+        return ResponseEntity.ok(homeProjects);
+    }
 
     @Operation(
             summary = "Get approved ratings",

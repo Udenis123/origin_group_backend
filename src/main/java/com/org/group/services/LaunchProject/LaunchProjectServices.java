@@ -370,9 +370,7 @@ public class LaunchProjectServices {
     public LaunchProjectResponse getProjectById(UUID projectId) {
         // Get the latest feedback for the project if it exists
         Optional<AnalyticsFeedback> latestFeedback = feedbackRepository.findLatestByProjectId(projectId);
-        LaunchProject project2= launchProjectRepository.findById(projectId).orElse(null);
-        assert project2 != null;
-        project2.setViews(project2.getViews() + 1);
+
         return launchProjectRepository.findById(projectId)
                 .map(project -> {
                             LaunchProjectResponse.LaunchProjectResponseBuilder builder = LaunchProjectResponse.builder()
@@ -576,5 +574,32 @@ public class LaunchProjectServices {
     }
 
 
-
+    public HomeProjectResponse getHomeProjectsById(UUID id) {
+        LaunchProject launchProject = launchProjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        
+        Double projectFinancialCategory = null;
+        if (launchProject.getAnalyticProject() != null) {
+            projectFinancialCategory = launchProject.getAnalyticProject().getPrice();
+        }
+        LaunchProject project2= launchProjectRepository.findById(id).orElse(null);
+        assert project2 != null;
+        project2.setViews(project2.getViews() + 1);
+        launchProjectRepository.save(project2);
+        
+        return HomeProjectResponse.builder()
+                .projectId(launchProject.getProjectId())
+                .clientName(launchProject.getClientName())
+                .analyticStatus(launchProject.getStatus())
+                .projectDescription(launchProject.getDescription())
+                .projectUrl(launchProject.getProjectPhotoUrl())
+                .category(launchProject.getCategory())
+                .projectName(launchProject.getProjectName())
+                .linkedInUrl(launchProject.getLinkedIn())
+                .projectLocation(launchProject.getProjectLocation())
+                .projectPurpose(launchProject.getProjectPurpose())
+                .projectType(launchProject.getProjectType())
+                .projectFinancialCategory(projectFinancialCategory)
+                .build();
+    }
 }
