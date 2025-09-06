@@ -332,49 +332,57 @@ public class JoinProjectService {
     }
 
     private String createJoinRequestNotificationEmail(CommunityProject project, Users joiner, JoinedProject joinRequest) {
-        return "<!DOCTYPE html>" +
-                "<html>" +
+        return "<html>" +
                 "<head>" +
-                "  <meta charset='UTF-8'>" +
-                "  <style>" +
-                "    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }" +
-                "    .email-container { max-width: 600px; margin: 0 auto; background-color: #f9f9f9; }" +
-                "    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }" +
-                "    .header h1 { margin: 0; font-size: 24px; }" +
-                "    .content { background: white; padding: 30px; }" +
-                "    .project-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }" +
-                "    .joiner-info { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; }" +
-                "    .cta-button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }" +
-                "    .footer { background: #333; color: white; padding: 20px; text-align: center; font-size: 12px; }" +
-                "    .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }" +
-                "    .status-requested { background: #fff3cd; color: #856404; }" +
-                "  </style>" +
+                "<style>" +
+                "  body { font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0; }" +
+                "  .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }" +
+                "  .header { background-color: #131b5a; color: #ffffff; text-align: center; padding: 20px; }" +
+                "  .header h1 { margin: 0; font-size: 24px; font-weight: bold; }" +
+                "  .content { padding: 30px; text-align: center; }" +
+                "  .content h2 { color: #333333; font-size: 20px; margin-bottom: 20px; }" +
+                "  .project-info { background-color: #f0f0f0; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: left; }" +
+                "  .project-info h3 { color: #131b5a; margin-top: 0; }" +
+                "  .joiner-info { background-color: #e3f2fd; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: left; }" +
+                "  .joiner-info h3 { color: #131b5a; margin-top: 0; }" +
+                "  .login-button { display: inline-block; background-color: #131b5a; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }" +
+                "  .login-button:hover { background-color: #0f1447; }" +
+                "  .footer { text-align: center; padding: 20px; font-size: 14px; color: #666666; background-color: #fbdfb8; }" +
+                "  .footer a { color: #007bff; text-decoration: none; }" +
+                "  .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }" +
+                "  .status-requested { background: #fff3cd; color: #856404; }" +
+                "</style>" +
                 "</head>" +
                 "<body>" +
                 "<div class='email-container'>" +
                 "  <div class='header'>" +
                 "    <h1>New Join Request</h1>" +
-                "    <p>Someone wants to join your community project!</p>" +
                 "  </div>" +
                 "  <div class='content'>" +
-                "    <h2>Project Details</h2>" +
+                "    <h2>Someone wants to join your community project!</h2>" +
+                "    <p>Dear Project Owner,</p>" +
+                "    <p>You have received a new join request for your community project.</p>" +
                 "    <div class='project-info'>" +
-                "      <h3>" + project.getProjectName() + "</h3>" +
+                "      <h3>Project Details:</h3>" +
+                "      <p><strong>Project Name:</strong> " + project.getProjectName() + "</p>" +
                 "      <p><strong>Category:</strong> " + project.getCategory() + "</p>" +
                 "      <p><strong>Location:</strong> " + project.getLocation() + "</p>" +
                 "    </div>" +
-                "    <h2>Join Request Details</h2>" +
                 "    <div class='joiner-info'>" +
+                "      <h3>Join Request Details:</h3>" +
                 "      <p><strong>Name:</strong> " + joiner.getName() + "</p>" +
                 "      <p><strong>Email:</strong> " + joiner.getEmail() + "</p>" +
                 "      <p><strong>Phone:</strong> " + joiner.getPhone() + "</p>" +
+                "      <p><strong>Team Requested:</strong> " + joinRequest.getJoinedTeam() + "</p>" +
+                "      <p><strong>Message:</strong> " + joinRequest.getDescription() + "</p>" +
                 "      <p><strong>Status:</strong> <span class='status-badge status-requested'>REQUESTED</span></p>" +
                 "    </div>" +
                 "    <p>Please review this request and take action by visiting your project dashboard.</p>" +
-                "    <a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='cta-button'>View Project Dashboard</a>" +
+                "    <a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='login-button'>View Project Dashboard</a>" +
+                "    <p><small>If the button doesn't work, copy and paste this link: <a href='https://origin-client.orinest.rw/dashboard/project/my-projects'>https://origin-client.orinest.rw/dashboard/project/my-projects</a></small></p>" +
                 "  </div>" +
                 "  <div class='footer'>" +
-                "    <p>Need help? <a href='mailto:origin@group.com' style='color: #667eea;'>Contact Support</a></p>" +
+                "    <p>Need help? <a href='mailto:origin@group.com'>Contact Support</a></p>" +
                 "    <p>&copy; 2025 Origin Group. All rights reserved.</p>" +
                 "  </div>" +
                 "</div>" +
@@ -389,36 +397,41 @@ public class JoinProjectService {
         String actionText = status == JoinStatus.ACCEPTED ? 
                 "Congratulations! Your join request has been accepted." : 
                 "We regret to inform you that your join request has been declined.";
+        String headerText = status == JoinStatus.ACCEPTED ? "Join Request Accepted!" : "Join Request Update";
         
-        return "<!DOCTYPE html>" +
-                "<html>" +
+        return "<html>" +
                 "<head>" +
-                "  <meta charset='UTF-8'>" +
-                "  <style>" +
-                "    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }" +
-                "    .email-container { max-width: 600px; margin: 0 auto; background-color: #f9f9f9; }" +
-                "    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }" +
-                "    .header h1 { margin: 0; font-size: 24px; }" +
-                "    .content { background: white; padding: 30px; }" +
-                "    .project-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }" +
-                "    .status-info { background: " + statusColor + "; padding: 20px; border-radius: 8px; margin: 20px 0; color: " + statusTextColor + "; }" +
-                "    .cta-button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }" +
-                "    .footer { background: #333; color: white; padding: 20px; text-align: center; font-size: 12px; }" +
-                "    .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }" +
-                "    .status-accepted { background: #d4edda; color: #155724; }" +
-                "    .status-declined { background: #f8d7da; color: #721c24; }" +
-                "  </style>" +
+                "<style>" +
+                "  body { font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0; }" +
+                "  .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }" +
+                "  .header { background-color: #131b5a; color: #ffffff; text-align: center; padding: 20px; }" +
+                "  .header h1 { margin: 0; font-size: 24px; font-weight: bold; }" +
+                "  .content { padding: 30px; text-align: center; }" +
+                "  .content h2 { color: #333333; font-size: 20px; margin-bottom: 20px; }" +
+                "  .project-info { background-color: #f0f0f0; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: left; }" +
+                "  .project-info h3 { color: #131b5a; margin-top: 0; }" +
+                "  .status-info { background-color: " + statusColor + "; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: left; color: " + statusTextColor + "; }" +
+                "  .status-info h3 { margin-top: 0; }" +
+                "  .login-button { display: inline-block; background-color: #131b5a; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }" +
+                "  .login-button:hover { background-color: #0f1447; }" +
+                "  .footer { text-align: center; padding: 20px; font-size: 14px; color: #666666; background-color: #fbdfb8; }" +
+                "  .footer a { color: #007bff; text-decoration: none; }" +
+                "  .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }" +
+                "  .status-accepted { background: #d4edda; color: #155724; }" +
+                "  .status-declined { background: #f8d7da; color: #721c24; }" +
+                "</style>" +
                 "</head>" +
                 "<body>" +
                 "<div class='email-container'>" +
                 "  <div class='header'>" +
-                "    <h1>Join Request Update</h1>" +
-                "    <p>Your join request status has been updated</p>" +
+                "    <h1>" + headerText + "</h1>" +
                 "  </div>" +
                 "  <div class='content'>" +
-                "    <h2>Project Details</h2>" +
+                "    <h2>Your join request status has been updated</h2>" +
+                "    <p>Dear " + joiner.getName() + ",</p>" +
                 "    <div class='project-info'>" +
-                "      <h3>" + project.getProjectName() + "</h3>" +
+                "      <h3>Project Details:</h3>" +
+                "      <p><strong>Project Name:</strong> " + project.getProjectName() + "</p>" +
                 "      <p><strong>Category:</strong> " + project.getCategory() + "</p>" +
                 "      <p><strong>Location:</strong> " + project.getLocation() + "</p>" +
                 "      <p><strong>Team:</strong> " + joinRequest.getJoinedTeam() + "</p>" +
@@ -430,12 +443,14 @@ public class JoinProjectService {
                 "    </div>" +
                 (status == JoinStatus.ACCEPTED ? 
                     "<p>You can now start collaborating on this project. Check your dashboard for more details.</p>" +
-                    "<a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='cta-button'>View My Projects</a>" :
+                    "<a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='login-button'>View My Projects</a>" +
+                    "<p><small>If the button doesn't work, copy and paste this link: <a href='https://origin-client.orinest.rw/dashboard/project/my-projects'>https://origin-client.orinest.rw/dashboard/project/my-projects</a></small></p>" :
                     "<p>Don't worry! There are many other exciting projects you can join. Keep exploring our platform.</p>" +
-                    "<a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='cta-button'>Explore More Projects</a>") +
+                    "<a href='https://origin-client.orinest.rw/dashboard/project/my-projects' class='login-button'>Explore More Projects</a>" +
+                    "<p><small>If the button doesn't work, copy and paste this link: <a href='https://origin-client.orinest.rw/dashboard/project/my-projects'>https://origin-client.orinest.rw/dashboard/project/my-projects</a></small></p>") +
                 "  </div>" +
                 "  <div class='footer'>" +
-                "    <p>Need help? <a href='mailto:origin@group.com' style='color: #667eea;'>Contact Support</a></p>" +
+                "    <p>Need help? <a href='mailto:origin@group.com'>Contact Support</a></p>" +
                 "    <p>&copy; 2025 Origin Group. All rights reserved.</p>" +
                 "  </div>" +
                 "</div>" +
