@@ -439,7 +439,7 @@ public class JoinProjectService {
                 "    <div class='status-info'>" +
                 "      <h3>Request Status: <span class='status-badge " + (status == JoinStatus.ACCEPTED ? "status-accepted" : "status-declined") + "'>" + statusText + "</span></h3>" +
                 "      <p>" + actionText + "</p>" +
-                (reason != null && !reason.trim().isEmpty() ? "<p><strong>Reason:</strong> " + reason + "</p>" : "") +
+                (reason != null && !reason.trim().isEmpty() ? "<p><strong>Comment:</strong> " + reason + "</p>" : "") +
                 "    </div>" +
                 (status == JoinStatus.ACCEPTED ? 
                     "<p>You can now start collaborating on this project. Check your dashboard for more details.</p>" +
