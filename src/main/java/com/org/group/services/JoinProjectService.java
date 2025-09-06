@@ -88,6 +88,7 @@ public class JoinProjectService {
         List<JoinedProject> joinRequests = joinRepository.findByCommunityProjectId(projectId);
 
         return joinRequests.stream()
+                .filter(joinRequest -> joinRequest.getStatus() == JoinStatus.REJECTED)
                 .map(joinRequest -> {
                     Users user = userRepository.findById(joinRequest.getUserId())
                             .orElseThrow(() -> new EntityNotFoundException("User not found"));
